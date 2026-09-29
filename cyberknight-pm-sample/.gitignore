@@ -1,0 +1,8 @@
+node_modules/
+.kokoro
+assets/
+audio/mix.wav
+out/*
+!out/cyberknight_pm_module1_sample.mp4
+!out/contact_sheet.jpg
+__pycache__/

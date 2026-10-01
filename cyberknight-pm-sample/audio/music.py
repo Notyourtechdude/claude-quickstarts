@@ -314,8 +314,9 @@ S(whoosh(0.5, 300, 6000), 16.45, 0.6)                                     # whip
 S(riser(1.1, 200, 8000), 17.0, 0.3)
 S(boom(2.4, 42), VO["l4b"] + 0.1, 0.8); S(glitch(0.1, 8), VO["l4b"] + 0.55, 0.25)   # SOFT SKILLS
 S(whoosh(0.4, 500, 7000), 18.75, 0.5)                                     # zoom-through
-for t in (18.9, 19.0, 19.1):
+for t in (18.9, 19.0):
     S(blip(700, 0.1, False), t, 0.25)
+S(boom(1.4, 46), 19.05, 0.7); S(thud(), 19.05, 1.0)                       # the knight lands
 S(thud(), 19.25, 0.8)
 for t, f in [(19.45, 1046), (19.6, 1175), (19.75, 1318)]:
     S(blip(f, 0.1), t, 0.25)

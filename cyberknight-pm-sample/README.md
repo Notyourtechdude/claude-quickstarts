@@ -11,7 +11,7 @@ A 36-second, 1080p60 motion-graphics sample for **CyberKnight's** training video
 | 0–4 | 00 The Question | A CRT-style boot, then the knight mark line-draws, fills with its red glitch offset and shatters into a particle "?" | "Every great product starts with one question. What problem are we solving?" |
 | 4–9 | 01 The Role | The "?" dot grows into a Venn of Business × Tech × Users. The PM drops into the overlap (squash and stretch), waves, and the lobes light on each word | "A product manager lives where business, tech, and users meet." |
 | 9–17 | 02 Fundamentals | A tracking shot follows a circuit path. The PM walks on eighth notes while the nodes Discover, Define and Prioritize light up. The path then unfolds into an Impact × Effort matrix: backlog tickets rain in, get RICE-scored and sorted, and the time sinks get cut | "Discover the real need. Define what matters. Prioritize… ruthlessly." |
-| 17–26 | 03 Soft Skills | A "SOFT SKILLS" slam, then a stakeholder standoff (Dev / Designer / Exec) with lightning. The PM steps up (OWNERSHIP), the asks merge into a shared roadmap (TRUST), and a scope ⟷ time slider ends in a deal stamp (NEGOTIATION). Confetti, then an iris wipe | "But the real edge? Soft skills. Ownership. Trust. Negotiation." |
+| 17–26 | 03 Soft Skills | A "SOFT SKILLS" slam, then a stakeholder standoff (Dev / Designer / the armoured CyberKnight) with lightning; the knight lands hard and folds his arms until trust is earned. The PM steps up (OWNERSHIP), the asks merge into a shared roadmap (TRUST), and a scope ⟷ time slider ends in a deal stamp (NEGOTIATION). Confetti, then an iris wipe | "But the real edge? Soft skills. Ownership. Trust. Negotiation." |
 | 26–31 | 04 Ship It | A roadmap that never ships glitches and falls away. "PEOPLE DO." Then the team pops in and a knight-badged rocket launches | "Because roadmaps don't ship products. People do." |
 | 31–36 | 05 End card | The rocket trail draws the knight, and radar rings orbit Vendors · Partners · Customers. The Module 01 lockup and cyberknight.tech appear, the PM waves goodbye, and it ends on a CRT-off | "Module one. Product management, by CyberKnight." |
 
@@ -25,7 +25,7 @@ The brand tokens come from CyberKnight's brand kit:
 ## How it's built
 
 - **Animation:** `index.html` + `src/`. A single paused [GSAP](https://gsap.com) timeline drives SVG/HTML layers, and particles and confetti are drawn on a canvas as pure functions of time. `window.__seek(t)` renders any frame deterministically.
-  - `src/characters.js`: vector character rigs (pivoted limbs, blinks, lip flaps, walk/wave/drop-in/celebrate actions).
+  - `src/characters.js`: vector character rigs (pivoted limbs, blinks, lip flaps, walk/wave/drop-in/celebrate actions). `makeKnight` builds the armoured CyberKnight stakeholder: gunmetal plates, red neon seams and an eared helmet whose visor carries his expression (`crossArms`, a narrowing slit for sternness, visor heat for speech).
   - `src/scenes/s1…s6`: one file per chapter.
   - `src/fx.js`: background world, HUD, grain, glitch helpers and point sampling.
 - **Audio:** `audio/music.py` synthesises the music and all sound design with numpy/scipy (no samples). Every hit is locked to the same cue times the visuals use (`audio/cues.json`). The narrator VO is ducked on top.

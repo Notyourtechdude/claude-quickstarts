@@ -60,7 +60,9 @@ export default function s4(ctx) {
   const T0 = 18.9;
   dev.popIn(tl, T0, { x: POS.dev, y: Y, scale: SC });
   designer.popIn(tl, T0 + 0.1, { x: POS.designer, y: Y, scale: SC });
-  exec.popIn(tl, T0 + 0.2, { x: POS.exec, y: Y, scale: SC });
+  exec.dropIn(tl, T0 + 0.15, { x: POS.exec, y: Y, scale: SC, fall: 0.26 });   // the knight lands hard
+  ctx.shake(ctx.world, T0 + 0.15, 0.25, 9, 31);
+  tl.set(exec.legs[0], { rotation: 4 }, T0 + 0.5); tl.set(exec.legs[1], { rotation: -4 }, T0 + 0.5);
   tl.set(dev.props.laptop, { opacity: 1 }, T0);
   dev.pose(tl, T0, { armL: -25, armR: 25, foreL: -40, foreR: 40 }, 0.01);
   pm.dropIn(tl, T0 + 0.35, { x: POS.pm, y: Y, scale: SC, fall: 0.3 });
@@ -70,17 +72,17 @@ export default function s4(ctx) {
 
   // ── conflict: three competing asks ──
   const R = rng(44);
-  const bubble = (x, str, accent) => {
+  const bubble = (x, str, accent, dy = 0) => {
     const bg = s("g", {}, fg);
-    const t = s("text", { x, y: 468, "text-anchor": "middle", fill: accent ? C.red : "#fff", "font-family": "JBMono", "font-weight": 700, "font-size": 24, "letter-spacing": 1, text: str }, bg);
+    const t = s("text", { x, y: 468 + dy, "text-anchor": "middle", fill: accent ? C.red : "#fff", "font-family": "JBMono", "font-weight": 700, "font-size": 24, "letter-spacing": 1, text: str }, bg);
     const w = t.getComputedTextLength() + 56;
-    bg.insertBefore(s("path", { d: `M${x - w / 2} 424 h${w} a12 12 0 0 1 12 12 v44 a12 12 0 0 1 -12 12 H${x + 18} l-18 22 l-4 -22 H${x - w / 2} a12 12 0 0 1 -12 -12 v-44 a12 12 0 0 1 12 -12 Z`, fill: "#101015", stroke: accent ? C.red : "rgba(255,255,255,0.5)", "stroke-width": 2.5 }), t);
-    gsap.set(bg, { svgOrigin: `${x} 514`, scale: 0 });
-    return { bg, x, w };
+    bg.insertBefore(s("path", { d: `M${x - w / 2} ${424 + dy} h${w} a12 12 0 0 1 12 12 v44 a12 12 0 0 1 -12 12 H${x + 18} l-18 22 l-4 -22 H${x - w / 2} a12 12 0 0 1 -12 -12 v-44 a12 12 0 0 1 12 -12 Z`, fill: "#101015", stroke: accent ? C.red : "rgba(255,255,255,0.5)", "stroke-width": 2.5 }), t);
+    gsap.set(bg, { svgOrigin: `${x} ${514 + dy}`, scale: 0 });
+    return { bg, x, w, y: 452 + dy };
   };
   const bD = bubble(POS.dev, "{ refactor first }");
   const bG = bubble(POS.designer, "pixel-perfect UX");
-  const bE = bubble(POS.exec, "$ ship by Q3", true);
+  const bE = bubble(POS.exec, "$ ship by Q3", true, -78);   // the knight stands taller: lift his ask above the helmet ears
   const B = [bD, bG, bE];
   const C0 = 19.45;
   B.forEach((b, i) => tl.to(b.bg, { scale: 1, duration: 0.35, ease: "back.out(2.4)" }, C0 + i * 0.15));
@@ -90,15 +92,20 @@ export default function s4(ctx) {
   for (const b of B) for (let f = 0; f < 10; f++) tl.set(b.bg, { x: (R() - 0.5) * 10, y: (R() - 0.5) * 6 }, 19.9 + f / 30);
   for (const b of B) tl.set(b.bg, { x: 0, y: 0 }, 20.24);
   // lightning between the asks
-  const bolt = (x1, x2) => {
-    let d = `M${x1} 452`;
+  const bolt = (x1, x2, y1 = 452, y2 = 452) => {
+    let d = `M${x1} ${y1}`;
     const n = 7;
-    for (let i = 1; i <= n; i++) d += ` L${x1 + ((x2 - x1) * i) / n} ${452 + (i === n ? 0 : (R() - 0.5) * 60)}`;
+    for (let i = 1; i <= n; i++) d += ` L${x1 + ((x2 - x1) * i) / n} ${y1 + ((y2 - y1) * i) / n + (i === n ? 0 : (R() - 0.5) * 60)}`;
     return s("path", { d, stroke: C.red, "stroke-width": 4, fill: "none", filter: "url(#glow)", "stroke-linejoin": "round", opacity: 0 }, fg);
   };
-  const bolts = [bolt(bD.x + bD.w / 2 + 14, bG.x - bG.w / 2 - 14), bolt(bG.x + bG.w / 2 + 14, bE.x - bE.w / 2 - 14)];
-  for (let f = 0; f < 9; f++) tl.set(bolts, { opacity: f % 3 === 2 ? 0 : 1, scaleY: f % 2 ? -1 : 1, svgOrigin: "960 452" }, 19.9 + f / 30);
-  tl.set(bolts, { opacity: 0 }, 20.2);
+  // two zigzag variants per pair, alternated for a crackling flicker
+  const pairs = [[bD.x + bD.w / 2 + 14, bG.x - bG.w / 2 - 14, bD.y, bG.y], [bG.x + bG.w / 2 + 14, bE.x - bE.w / 2 - 14, bG.y, bE.y]];
+  const boltsA = pairs.map((p) => bolt(...p)), boltsB = pairs.map((p) => bolt(...p));
+  for (let f = 0; f < 9; f++) {
+    tl.set(boltsA, { opacity: f % 3 === 2 || f % 2 ? 0 : 1 }, 19.9 + f / 30);
+    tl.set(boltsB, { opacity: f % 3 === 2 || !(f % 2) ? 0 : 1 }, 19.9 + f / 30);
+  }
+  tl.set([...boltsA, ...boltsB], { opacity: 0 }, 20.2);
   pm.brows(tl, C0 + 0.1, "worried"); pm.mouth(tl, C0 + 0.1, "flat");
   pm.look(tl, C0 + 0.2, -1); pm.look(tl, C0 + 0.55, 1); pm.look(tl, C0 + 0.8, -0.5);
 
@@ -110,7 +117,9 @@ export default function s4(ctx) {
   pm.pose(tl, OWN, { armR: -165, foreR: -8 }, 0.22, "back.out(2.5)");
   pm.pose(tl, OWN + 0.7, { armR: -7, foreR: 0 }, 0.35, "power2.inOut");
   for (const c of [dev, designer]) { c.look(tl, OWN + 0.05, 1); c.brows(tl, OWN + 0.05, "up"); c.mouth(tl, OWN + 0.05, "small"); }
-  exec.look(tl, OWN + 0.05, -1); exec.brows(tl, OWN + 0.05, "up"); exec.mouth(tl, OWN + 0.05, "small");
+  exec.look(tl, OWN + 0.05, -1); exec.brows(tl, OWN + 0.05, "neutral"); exec.mouth(tl, OWN + 0.05, "small");
+  exec.crossArms(tl, OWN + 0.15);   // the knight sizes her up, arms folded…
+  exec.uncross(tl, ctx.vo("l4d") + 0.35);   // …and opens up once there is trust
   tl.fromTo(pm.glowRing, { opacity: 1, attr: { rx: 60, ry: 12 } }, { opacity: 0, attr: { rx: 260, ry: 56 }, duration: 0.8, ease: "expo.out", immediateRender: false }, OWN);
   // assignee chip
   const chip = s("g", {}, fg);
@@ -121,7 +130,7 @@ export default function s4(ctx) {
   gsap.set(chip, { svgOrigin: `${POS.pm} 524`, scale: 0 });
   tl.to(chip, { scale: 1, duration: 0.35, ease: "back.out(2.5)" }, OWN + 0.1);
   // listening: dotted lines from her to each ask + a voice meter
-  const links = B.map((b) => s("path", { d: `M${POS.pm} 540 Q${(POS.pm + b.x) / 2} 640 ${b.x} 520`, stroke: "rgba(255,255,255,0.55)", "stroke-width": 2.5, "stroke-dasharray": "3 9", fill: "none", "stroke-linecap": "round" }, fg));
+  const links = B.map((b) => s("path", { d: `M${POS.pm} 540 Q${(POS.pm + b.x) / 2} 640 ${b.x} ${b.y + 68}`, stroke: "rgba(255,255,255,0.55)", "stroke-width": 2.5, "stroke-dasharray": "3 9", fill: "none", "stroke-linecap": "round" }, fg));
   links.forEach((l, i) => tl.fromTo(l, { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.45, ease: "power2.out", immediateRender: true }, OWN + 0.8 + i * 0.12));
   const meter = s("g", {}, fg);
   const bars = [];

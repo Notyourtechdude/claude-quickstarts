@@ -354,3 +354,164 @@ export class Character {
     return this;
   }
 }
+
+// ───────────────────────── the Knight ─────────────────────────
+// CyberKnight's armoured mascot: gunmetal plates over a black undersuit, red neon seams, eared helmet
+// with a glowing visor. Heroic proportions (~560 units tall vs ~455 for the team). No face: the visor
+// carries expression (narrowed slit = stern, brighter = speaking/happy).
+const K = { a1: "#4A4F5A", a2: "#353943", a3: "#22252C", suit: "#111216", seam: "#16171C" };
+
+function neon(parent, ds, width = 3) {
+  const g = s("g", { stroke: C.red, "stroke-width": width, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round", filter: "url(#glow)" }, parent);
+  for (const d of ds) s("path", { d }, g);
+  return g;
+}
+
+export function makeKnight(parent, { x = 0, y = 0, scale = 1, id } = {}) {
+  const root = s("g", { id, class: "char char-knight" }, parent);
+  const shadow = s("ellipse", { cx: 0, cy: 0, rx: 100, ry: 15, fill: "#000", opacity: 0.6 }, root);
+  const glowRing = s("ellipse", { cx: 0, cy: 0, rx: 120, ry: 22, fill: "none", stroke: C.red, "stroke-width": 3, opacity: 0 }, root);
+  const body = s("g", { class: "body" }, root);
+
+  // legs (pivot at the hips); content mirrored so seams sit on the outer side
+  const legs = [];
+  for (const sd of [-1, 1]) {
+    const leg = pivot(body, sd * 32, -232, "leg");
+    const m = s("g", { transform: `scale(${sd} 1)` }, leg);
+    s("rect", { x: -21, y: -6, width: 42, height: 212, rx: 16, fill: K.suit }, m);
+    s("path", { d: "M-23,4 L23,4 L20,94 L-20,94 Z", fill: K.a2 }, m);
+    s("path", { d: "M-23,4 L-8,4 L-8,94 L-20,94 Z", fill: K.a1, opacity: 0.45 }, m);
+    s("circle", { cx: 0, cy: 110, r: 17, fill: K.a1 }, m);
+    s("circle", { cx: 0, cy: 110, r: 4, fill: C.red }, m);
+    s("path", { d: "M-21,128 L21,128 L19,198 L-19,198 Z", fill: K.a2 }, m);
+    s("path", { d: "M-24,196 L24,196 L30,224 Q30,232 22,232 L-22,232 Q-30,232 -30,224 Z", fill: K.a3 }, m);
+    neon(m, ["M18,12 L16,88", "M15,134 L13,190", "M-20,214 L26,214"], 2.6);
+    legs.push(leg);
+  }
+
+  // torso (pivot at the hips, shoulders at y = -170)
+  const torso = pivot(body, 0, -232, "torso");
+  s("path", { d: "M-62,-172 C-80,-170 -88,-152 -84,-130 L-52,6 L52,6 L84,-130 C88,-152 80,-170 62,-172 Z", fill: K.suit }, torso);
+  s("path", { d: "M-74,-160 L-26,-174 L0,-156 L26,-174 L74,-160 L78,-118 L48,-80 L0,-90 L-48,-80 L-78,-118 Z", fill: K.a2 }, torso);
+  s("path", { d: "M-74,-160 L-26,-174 L0,-156 L0,-90 L-48,-80 L-78,-118 Z", fill: K.a1, opacity: 0.5 }, torso);
+  s("path", { d: "M0,-156 L0,-90", stroke: K.seam, "stroke-width": 3 }, torso);
+  for (let r = 0; r < 3; r++) {
+    const y0 = -76 + r * 24;
+    s("rect", { x: -36, y: y0, width: 32, height: 20, rx: 5, fill: r % 2 ? K.a3 : K.a2 }, torso);
+    s("rect", { x: 4, y: y0, width: 32, height: 20, rx: 5, fill: r % 2 ? K.a3 : K.a2 }, torso);
+  }
+  s("rect", { x: -58, y: -6, width: 116, height: 18, rx: 6, fill: "#1A1B20" }, torso);
+  s("path", { d: "M0,-8 L8,-3 L8,7 L0,12 L-8,7 L-8,-3 Z", fill: C.red, filter: "url(#glow)" }, torso);
+  s("path", { d: "M-58,12 L-26,12 L-30,46 L-60,36 Z", fill: K.a2 }, torso);
+  s("path", { d: "M58,12 L26,12 L30,46 L60,36 Z", fill: K.a2 }, torso);
+  neon(torso, ["M-62,-150 L-30,-160 L-10,-142", "M62,-150 L30,-160 L10,-142", "M-66,-122 L-44,-92", "M66,-122 L44,-92",
+    "M-14,-112 L0,-100 L14,-112", "M-46,3 L-16,3", "M16,3 L46,3"]);
+  const em = s("g", { transform: "translate(0 -128) scale(0.085) translate(-248.5 -198.5)" }, torso);
+  s("path", { d: KNIGHT_D, fill: C.core, "fill-rule": "evenodd", transform: "translate(8 -10)" }, em);
+  s("path", { d: KNIGHT_D, fill: "#fff", "fill-rule": "evenodd" }, em);
+  s("path", { d: "M80,-140 L52,4", stroke: C.red, "stroke-width": 3, opacity: 0.85, "stroke-linecap": "round" }, torso);
+  s("rect", { x: -24, y: -188, width: 48, height: 24, rx: 6, fill: "#17181D" }, torso);
+
+  // helmet (pivot at the neck)
+  const head = pivot(torso, 0, -178, "head");
+  for (const sd of [-1, 1]) {
+    s("path", { d: `M${sd * 34},-90 L${sd * 46},-152 L${sd * 14},-104 Z`, fill: K.a3 }, head);
+  }
+  neon(head, ["M-42,-140 L-20,-106", "M42,-140 L20,-106"], 2.4);
+  s("path", { d: "M-30,0 L-44,-34 L-46,-76 L-34,-100 L-14,-110 L14,-110 L34,-100 L46,-76 L44,-34 L30,0 L14,8 L-14,8 Z", fill: K.a3 }, head);
+  s("path", { d: "M-46,-72 L-44,-34 L-30,0 L-22,-6 L-32,-40 L-34,-70 Z", fill: K.a1 }, head);
+  s("path", { d: "M46,-72 L44,-34 L30,0 L22,-6 L32,-40 L34,-70 Z", fill: K.a2 }, head);
+  s("path", { d: "M-14,-110 L14,-110 L8,-96 L-8,-96 Z", fill: K.a1 }, head);
+  s("path", { d: "M-30,-10 L-34,-62 L-22,-84 L22,-84 L34,-62 L30,-10 L14,0 L-14,0 Z", fill: "#060607" }, head);
+  const visor = neon(head, ["M-30,-10 L-34,-62 L-22,-84 L22,-84 L34,-62 L30,-10 L14,0 L-14,0 Z", "M0,-44 L0,-8",
+    "M-22,-76 L-10,-66", "M22,-76 L10,-66", "M-24,-28 L-12,-18 L12,-18 L24,-28", "M-14,-108 L0,-98 L14,-108"], 3);
+  const slitOuter = s("g", {}, head);
+  const slitInner = s("g", {}, slitOuter);
+  const slitD = "M-28,-60 L-6,-54 L6,-54 L28,-60 L26,-49 L6,-45 L-6,-45 L-26,-49 Z";
+  s("path", { d: slitD, fill: C.red, filter: "url(#glow)" }, slitInner);
+  const visorHot = s("path", { d: slitD, fill: "#FFE1E5", opacity: 0.15 }, slitInner);
+  s("path", { d: "M44,-34 L46,-76 L34,-100", stroke: C.red, "stroke-width": 2.5, fill: "none", opacity: 0.9 }, head);
+
+  // arms (pivot at the shoulders), pauldrons ride on the upper arm
+  const arms = [], fores = [], hands = [];
+  for (const sd of [-1, 1]) {
+    const arm = pivot(torso, sd * 96, -156, "arm");
+    const am = s("g", { transform: `scale(${sd} 1)` }, arm);
+    s("rect", { x: -17, y: -8, width: 34, height: 94, rx: 16, fill: K.suit }, am);
+    s("rect", { x: -20, y: 14, width: 40, height: 52, rx: 9, fill: K.a2 }, am);
+    s("rect", { x: -20, y: 14, width: 14, height: 52, rx: 7, fill: K.a1, opacity: 0.5 }, am);
+    neon(am, ["M13,20 L13,60"], 2.6);
+    const fore = pivot(arm, 0, 84, "fore");
+    const fm = s("g", { transform: `scale(${sd} 1)` }, fore);
+    s("rect", { x: -18, y: -8, width: 36, height: 82, rx: 15, fill: K.a3 }, fm);
+    s("rect", { x: -19, y: 8, width: 38, height: 46, rx: 9, fill: K.a2 }, fm);
+    s("rect", { x: -18, y: 58, width: 36, height: 8, fill: K.suit }, fm);
+    neon(fm, ["M12,14 L12,50"], 2.6);
+    const hand = s("g", { transform: "translate(0 86)" }, fore);
+    s("rect", { x: -17, y: -12, width: 34, height: 32, rx: 11, fill: K.a3 }, hand);
+    s("rect", { x: -15, y: 4, width: 30, height: 10, rx: 4, fill: K.a1 }, hand);
+    // pauldron drawn last so it caps the shoulder
+    const pm = s("g", { transform: `scale(${sd} 1)` }, arm);
+    s("path", { d: "M-30,-4 C-34,-40 32,-46 40,-14 L36,16 L-26,18 Z", fill: K.a1 }, pm);
+    s("path", { d: "M-26,10 L34,8", stroke: K.seam, "stroke-width": 3 }, pm);
+    neon(pm, ["M-22,-14 C-8,-30 18,-30 32,-14"], 2.6);
+    arms.push(arm); fores.push(fore); hands.push(hand);
+  }
+
+  const dummy = s("g", {}, root);
+  gsap.set([...legs, torso, head, ...arms, ...fores, body, root], { svgOrigin: "0 0" });
+  gsap.set([slitOuter, slitInner], { svgOrigin: "0 -53" });
+  gsap.set(root, { x, y, scale });
+  gsap.set(arms[0], { rotation: 7 });
+  gsap.set(arms[1], { rotation: -7 });
+
+  const rig = {
+    root, body, legs, torso, head, eyes: slitInner, pupils: slitInner, browL: dummy, browR: dummy,
+    arms, fores, hands, mouths: {}, shadow, glowRing, props: {}, visor, visorHot, slitOuter,
+  };
+  return new KnightCharacter("knight", rig);
+}
+
+const KNIGHT_D = "M246 42 L212 89 L145 142 L173 269 L164 271 L145 355 L352 355 L338 272 L320 271 L325 248 L301 200 L327 197 L352 121 L250 83 Z M182 304 L314 304 L314 322 L183 322 Z M236 110 L310 141 L299 164 L249 164 L287 250 L278 270 L213 270 L186 155 Z";
+
+/** The Knight has no mouth or brows: "mouth" states drive visor heat, "brows" narrow or widen the slit. */
+class KnightCharacter extends Character {
+  mouth(tl, at, state) {
+    const heat = { smile: 0.15, small: 0.35, open: 0.7, grin: 0.6, flat: 0.05, frown: 0 }[state] ?? 0.15;
+    tl.set(this.visorHot, { opacity: heat }, at);
+    return this;
+  }
+
+  talk(tl, t0, t1, rest = "smile") {
+    let t = t0;
+    while (t < t1) {
+      tl.set(this.visorHot, { opacity: 0.25 + this.rand() * 0.75 }, t);
+      t += 0.06 + this.rand() * 0.07;
+    }
+    return this.mouth(tl, t1, rest);
+  }
+
+  brows(tl, at, mood = "neutral", dur = 0.2) {
+    const k = { neutral: 1, angry: 0.5, up: 1.2, worried: 0.8 }[mood];
+    tl.to(this.slitOuter, { scaleY: k, duration: dur, ease: "power2.out" }, at);
+    tl.to(this.visor, { opacity: mood === "angry" ? 1 : 0.85, duration: dur }, at);
+    return this;
+  }
+
+  place(tl, at, opts = {}) {
+    super.place(tl, at, opts);
+    tl.set(this.slitOuter, { scaleY: 1 }, at);
+    tl.set(this.legs[0], { rotation: 4 }, at);    // wide power stance
+    tl.set(this.legs[1], { rotation: -4 }, at);
+    return this;
+  }
+
+  /** Arms folded across the chest: the authority pose from the reference art. */
+  crossArms(tl, at, dur = 0.3) {
+    return this.pose(tl, at, { armL: -14, foreL: -98, armR: 14, foreR: 98 }, dur, "power3.out");
+  }
+
+  uncross(tl, at, dur = 0.3) {
+    return this.pose(tl, at, { armL: 7, foreL: 0, armR: -7, foreR: 0 }, dur, "power3.inOut");
+  }
+}

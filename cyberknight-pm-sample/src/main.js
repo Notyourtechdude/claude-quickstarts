@@ -3,7 +3,7 @@ import { gsap } from "../node_modules/gsap/index.js";
 import { DrawSVGPlugin } from "../node_modules/gsap/DrawSVGPlugin.js";
 import { MorphSVGPlugin } from "../node_modules/gsap/MorphSVGPlugin.js";
 import { C, s } from "./brand.js";
-import { makeCharacter } from "./characters.js";
+import { makeCharacter, makeKnight } from "./characters.js";
 import { buildDefs, buildBackground, buildHud, makeGrain } from "./fx.js";
 import s1 from "./scenes/s1_open.js";
 import s2 from "./scenes/s2_role.js";
@@ -73,7 +73,7 @@ async function boot() {
   ctx.cast = {
     dev: makeCharacter(ctx.actors, "dev", { id: "dev" }),
     designer: makeCharacter(ctx.actors, "designer", { id: "designer" }),
-    exec: makeCharacter(ctx.actors, "exec", { id: "exec" }),
+    exec: makeKnight(ctx.actors, { id: "exec" }),   // the stakeholder is CyberKnight's armoured knight
     pm: makeCharacter(ctx.actors, "pm", { id: "pm" }),
   };
   for (const c of Object.values(ctx.cast)) gsap.set(c.root, { autoAlpha: 0 });

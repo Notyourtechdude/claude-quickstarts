@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>CyberKnight — Module 01: Product Management</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/vendor/CustomEase.min.js"></script>
+    <script src="assets/vendor/DrawSVGPlugin.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 400; src: url(assets/fonts/inter-latin-400-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 600; src: url(assets/fonts/inter-latin-600-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 700; src: url(assets/fonts/inter-latin-700-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url(assets/fonts/inter-latin-800-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 900; src: url(assets/fonts/inter-latin-900-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Poppins"; font-weight: 300; src: url(assets/fonts/poppins-latin-300-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Poppins"; font-weight: 400; src: url(assets/fonts/poppins-latin-400-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Poppins"; font-weight: 500; src: url(assets/fonts/poppins-latin-500-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Poppins"; font-weight: 600; src: url(assets/fonts/poppins-latin-600-normal.woff2) format("woff2"); }
+      @font-face { font-family: "JBMono"; font-weight: 400; src: url(assets/fonts/jetbrains-mono-latin-400-normal.woff2) format("woff2"); }
+      @font-face { font-family: "JBMono"; font-weight: 700; src: url(assets/fonts/jetbrains-mono-latin-700-normal.woff2) format("woff2"); }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; overflow: hidden; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+      .layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+      .shot { position: absolute; inset: 0; }
+      .shot video { display: block; width: 100%; height: 100%; object-fit: cover; }
+      #type, #hud { pointer-events: none; }
+      #type > *, #type > .clip > *, #hud > * { position: absolute; }
+      .h { font-family: "Inter", Helvetica, Arial, sans-serif; font-weight: 800; color: #fff; letter-spacing: -0.02em; line-height: 0.92; white-space: nowrap; }
+      .b { font-family: "Poppins", sans-serif; font-weight: 400; color: #fff; letter-spacing: 0.02em; white-space: nowrap; }
+      .m { font-family: "JBMono", monospace; font-weight: 400; color: #fff; letter-spacing: 0.08em; white-space: nowrap; text-transform: uppercase; }
+      .ko { text-shadow: 0.06em -0.08em 0 #CD0A21; }
+      #vignette { background: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%); }
+      #flash { background: #fff; opacity: 0; }
+      #grain { opacity: 0.12; mix-blend-mode: overlay; }
+      #scan { background: repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 3px); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="36">
+      <!-- live action: six Higgsfield / Kling 3.0 shots of the CyberKnight -->
+      <div id="footage" class="layer">
+        <div class="shot" id="w-k1"><video id="k1" class="clip" src="assets/footage/k1.mp4" data-start="0" data-duration="4" data-track-index="0" muted playsinline></video></div>
+        <div class="shot" id="w-k2"><video id="k2" class="clip" src="assets/footage/k2.mp4" data-start="4" data-duration="5" data-track-index="0" muted playsinline></video></div>
+        <div class="shot" id="w-k3"><video id="k3" class="clip" src="assets/footage/k3.mp4" data-start="9" data-duration="8" data-track-index="0" muted playsinline></video></div>
+        <div class="shot" id="w-k4"><video id="k4" class="clip" src="assets/footage/k4.mp4" data-start="17" data-duration="9" data-track-index="0" muted playsinline></video></div>
+        <div class="shot" id="w-k5"><video id="k5" class="clip" src="assets/footage/k5.mp4" data-start="26" data-duration="5" data-track-index="0" muted playsinline></video></div>
+        <div class="shot" id="w-k6"><video id="k6" class="clip" src="assets/footage/k6.mp4" data-start="31" data-duration="5" data-track-index="0" muted playsinline></video></div>
+      </div>
+      <!-- motion-graphics layers, built by src/film.js on one paused timeline -->
+      <svg id="svg" class="layer" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+      <canvas id="fx" class="layer" width="1920" height="1080"></canvas>
+      <div id="type" class="layer"></div>
+      <div id="hud" class="layer"></div>
+      <div id="scan" class="layer"></div>
+      <div id="vignette" class="layer"></div>
+      <canvas id="grain" class="layer" width="960" height="540"></canvas>
+      <div id="flash" class="layer"></div>
+      <!-- soundtrack: narration + score + sound design, pre-mixed (audio/music.py); -3.5 dB → -14 LUFS -->
+      <audio id="mix" src="assets/audio/mix.wav" data-start="0" data-duration="36" data-track-index="10" data-volume="0.668"></audio>
+    </div>
+    <script type="module">
+      import { buildFilm } from "./src/film.js";
+      // register only after the async build (fonts + DOM generation) has added every tween
+      buildFilm().then(({ tl }) => {
+        window.__timelines["main"] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      });
+    </script>
+  </body>
+</html>

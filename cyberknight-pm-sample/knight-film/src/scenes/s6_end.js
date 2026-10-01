@@ -1,6 +1,6 @@
 // 31–36s · END CARD — over the knight's final power pose: the knight mark draws itself on the left,
 // radar rings orbit Vendors · Partners · Customers, the Module 01 lockup builds, then CRT-off.
-import { gsap } from "../../node_modules/gsap/index.js";
+import { gsap } from "../gsap.js";
 import { C, s, KNIGHT } from "../brand.js";
 import { text, reveal } from "../type.js";
 import { glitchSVG, glitchHTML } from "../fx.js";
@@ -58,7 +58,7 @@ export default function s6(ctx) {
   tl.to(rings, { y: -150, scale: 0.8, opacity: 0.45, duration: 0.7, ease: "expo.inOut" }, UP);
 
   const kick = text(type, "MODULE 01", { x: KX, y: 560, size: 24, cls: "m", anchor: "center", split: "chars" });
-  kick.inner.style.color = C.red; kick.inner.style.letterSpacing = "0.6em";
+  kick.inner.style.color = C.redText; kick.inner.style.letterSpacing = "0.6em";
   const title = text(type, "PRODUCT MANAGEMENT", { x: KX, y: 646, size: 90, cls: "h", anchor: "center", split: "chars" });
   const subt = text(type, "Fundamentals &amp; Soft Skills", { x: KX, y: 734, size: 40, cls: "b", anchor: "center" });
   subt.inner.style.fontWeight = 300;

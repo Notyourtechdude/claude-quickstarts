@@ -1,11 +1,9 @@
-// Builds one paused master timeline for the whole 36s piece and exposes a frame-accurate seek for capture.
-// Layers (bottom → top): live-action knight footage (canvas) · SVG holograms · FX canvas · HTML type · HUD · post.
-import { gsap } from "../node_modules/gsap/index.js";
-import { DrawSVGPlugin } from "../node_modules/gsap/DrawSVGPlugin.js";
-import { MorphSVGPlugin } from "../node_modules/gsap/MorphSVGPlugin.js";
-import { s } from "./brand.js";
+// HyperFrames entry: builds the hologram / type / HUD layers over the knight footage on ONE paused GSAP
+// timeline. index.html registers it as window.__timelines.main once this async build resolves.
+import { gsap, DrawSVGPlugin } from "./gsap.js";
+import cues from "./cues.js";
+import { s, h } from "./brand.js";
 import { buildDefs, buildHud, makeGrain } from "./fx.js";
-import { loadFootage, makeFootageLayer } from "./footage.js";
 import s1 from "./scenes/s1_open.js";
 import s2 from "./scenes/s2_role.js";
 import s3 from "./scenes/s3_fundamentals.js";
@@ -13,8 +11,7 @@ import s4 from "./scenes/s4_soft.js";
 import s5 from "./scenes/s5_ship.js";
 import s6 from "./scenes/s6_end.js";
 
-gsap.registerPlugin(DrawSVGPlugin, MorphSVGPlugin);
-gsap.ticker.lagSmoothing(0);
+gsap.registerPlugin(DrawSVGPlugin);
 
 const DURATION = 36;
 const CHAPTERS = [
@@ -26,12 +23,13 @@ const CHAPTERS = [
   { n: "05", label: "MODULE 01", t0: 31, t1: 36 },
 ];
 
-async function boot() {
-  const cues = await (await fetch("audio/cues.json")).json();
+export async function buildFilm() {
   const fonts = ["900 100px Inter", "800 100px Inter", "700 100px Inter", "600 100px Inter", "400 100px Inter",
     "300 40px Poppins", "400 40px Poppins", "500 40px Poppins", "600 40px Poppins", "400 20px JBMono", "700 20px JBMono"];
-  await Promise.all(fonts.map((f) => document.fonts.load(f)));
-  await document.fonts.ready;
+  // bounded waits: text is measured at build time, but a stalled FontFaceSet must never block registration
+  const settle = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
+  await settle(Promise.all(fonts.map((f) => document.fonts.load(f))), 3000);
+  await settle(document.fonts.ready, 3000);
 
   const svg = document.getElementById("svg");
   const tl = gsap.timeline({ paused: true });
@@ -45,7 +43,6 @@ async function boot() {
     drawers: [],
     vo: (id) => cues.vo[id],
   };
-  // scrims keep type legible over footage; scenes fade them in where text sits
   ctx.scrimL = s("rect", { x: 0, y: 0, width: 1920, height: 1080, fill: "url(#scrimL)", opacity: 0 }, svg);
   ctx.scrimB = s("rect", { x: 0, y: 0, width: 1920, height: 1080, fill: "url(#scrimB)", opacity: 0 }, svg);
   ctx.world = s("g", { id: "world" }, svg);
@@ -72,30 +69,44 @@ async function boot() {
   };
   ctx.hudApi = buildHud(ctx, CHAPTERS);
 
-  for (const scene of [s1, s2, s3, s4, s5, s6]) scene(ctx);
-  tl.set({}, {}, DURATION);
+  // each scene's type lives in its own timed clip layer, so the framework hides it outside its window
+  // (masked/off-stage text from other scenes never sits in the layout audit or the frame)
+  const typeRoot = ctx.type;
+  const WINDOWS = [[s1, 0, 4.0], [s2, 3.9, 9.05], [s3, 8.95, 17.0], [s4, 16.7, 26.0], [s5, 26.12, 31.0], [s6, 30.95, 36]];
+  WINDOWS.forEach(([scene, a, b], i) => {
+    const layer = h("div", { cls: "clip", parent: typeRoot, style: { position: "absolute", inset: "0" } });
+    layer.id = `type-s${i + 1}`;
+    layer.dataset.start = String(a);
+    layer.dataset.duration = String(+(b - a).toFixed(2));
+    layer.dataset.trackIndex = String(2 + i);
+    ctx.type = layer;
+    scene(ctx);
+  });
+  ctx.type = typeRoot;
 
-  const footage = makeFootageLayer(document.getElementById("footage"), await loadFootage(cues.shots));
+  // footage treatment: a slow push on each shot (non-timed wrappers) + a glitch hit on every cut
+  for (const sh of cues.shots) {
+    tl.fromTo(`#w-${sh.id}`, { scale: 1 }, { scale: 1.035, duration: sh.t1 - sh.t0, ease: "none", immediateRender: false }, sh.t0);
+  }
+  const footage = document.getElementById("footage");
+  for (const sh of cues.shots.slice(1)) {
+    const jit = [18, -26, 12, -8, 0];
+    jit.forEach((dx, f) => tl.set(footage, { x: dx, filter: f < 4 ? "saturate(2.2) contrast(1.25) hue-rotate(-12deg)" : "none" }, sh.t0 + f / 30));
+  }
+
+  // canvas layers (particles, confetti, grain) and the HUD timecode are pure functions of time:
+  // a full-length driver tween repaints them on every seek.
   const grain = makeGrain(document.getElementById("grain"));
-  const seek = async (t) => {
-    await footage(t);
-    tl.seek(t, false);
+  const paint = (t) => {
     ctx.fx.clearRect(0, 0, 1920, 1080);
     for (const d of ctx.drawers) if (t >= d.t0 && t <= d.t1) d.draw(ctx.fx, t);
     ctx.hudApi.update(t);
     grain(t);
   };
-  window.__duration = DURATION;
-  window.__seek = async (t) => { await seek(t); return new Promise((r) => requestAnimationFrame(() => r(true))); };
-
-  const q = new URLSearchParams(location.search);
-  if (q.has("t")) await seek(parseFloat(q.get("t")));
-  else if (q.has("play")) {
-    const start = performance.now() - parseFloat(q.get("play") || 0) * 1000;
-    const loop = async () => { await seek(((performance.now() - start) / 1000) % DURATION); requestAnimationFrame(loop); };
-    loop();
-  } else await seek(0);
-  window.__ready = true;
+  const clock = { t: 0 };
+  tl.fromTo(clock, { t: 0 }, { t: DURATION, duration: DURATION, ease: "none", immediateRender: true, onUpdate: () => paint(clock.t) }, 0);
+  paint(0);
+  // wrapped on purpose: a GSAP timeline is a thenable, so resolving the async function with it directly
+  // would make the promise wait for the (paused) timeline to finish, i.e. forever.
+  return { tl };
 }
-
-boot().catch((e) => { window.__error = String(e && e.stack || e); console.error(e); });

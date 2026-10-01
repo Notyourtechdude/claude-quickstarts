@@ -1,6 +1,6 @@
 // 26–31s · SHIP IT — the knight watches the launch. A roadmap hologram that "never ships" glitches out;
 // "PEOPLE DO." slams; launch metrics pop around the trail.
-import { gsap } from "../../node_modules/gsap/index.js";
+import { gsap } from "../gsap.js";
 import { C, s } from "../brand.js";
 import { text, reveal, conceal } from "../type.js";
 import { glitchSVG } from "../fx.js";
@@ -18,7 +18,7 @@ export default function s5(ctx) {
   const board = s("g", { id: "s5board", filter: "url(#holo)" }, g);
   s("rect", { x: BX - 16, y: BY - 46, width: QW * 4 + 32, height: LH * 4 + 70, rx: 14, fill: C.red, "fill-opacity": 0.06, stroke: "#ff9aa6", "stroke-width": 1.5 }, board);
   for (let q = 0; q < 4; q++) {
-    s("text", { x: BX + q * QW + 10, y: BY - 16, fill: "#ffc2ca", "font-family": "JBMono", "font-size": 15, "letter-spacing": 4, text: `Q${q + 1}` }, board);
+    s("text", { x: BX + q * QW + 10, y: BY - 16, fill: "#fff", "font-family": "JBMono", "font-size": 15, "letter-spacing": 4, text: `Q${q + 1}` }, board);
     if (q) s("line", { x1: BX + q * QW, y1: BY - 36, x2: BX + q * QW, y2: BY + LH * 4 + 12, stroke: "#ff9aa6", "stroke-opacity": 0.35, "stroke-width": 1.5, "stroke-dasharray": "4 8" }, board);
   }
   const BARS = [[0, 0.0, 1.6, "AUTH HARDENING"], [1, 0.3, 1.3, "AUDIT LOGS"], [2, 1.1, 3.6, "AI THREAT TRIAGE"], [3, 1.5, 2.5, "SSO"]];
@@ -42,7 +42,7 @@ export default function s5(ctx) {
   const v5 = ctx.vo("l5a");
   const H1 = text(type, "ROADMAPS DON'T", { x: 108, y: 230, size: 78, cls: "h", split: "chars" });
   const H2 = text(type, "SHIP PRODUCTS.", { x: 108, y: 312, size: 78, cls: "h", split: "chars" });
-  H2.inner.style.color = "transparent"; H2.inner.style.webkitTextStroke = "2.5px #fff";
+  H2.inner.style.color = C.redText;
   const w = ctx.cues.words?.l5a || { roadmaps: 0.45, ship: 1.35 };
   reveal(tl, H1.units, v5 + w.roadmaps - 0.05, { dur: 0.45, stagger: 0.02 });
   reveal(tl, H2.units, v5 + w.ship - 0.05, { dur: 0.4, stagger: 0.018 });

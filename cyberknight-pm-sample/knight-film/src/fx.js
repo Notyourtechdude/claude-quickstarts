@@ -1,5 +1,5 @@
 // Background world, HUD, post effects and canvas particle helpers.
-import { gsap } from "../node_modules/gsap/index.js";
+import { gsap } from "./gsap.js";
 import { C, s, h, rng, KNIGHT } from "./brand.js";
 
 export function buildDefs(svg) {

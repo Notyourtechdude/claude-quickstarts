@@ -1,6 +1,6 @@
 // 9–17s · FUNDAMENTALS — over the skybridge tracking shot: holographic stage words (Discover → Define →
 // Prioritize) drift past in parallax, then a floating Impact × Effort matrix sorts the backlog and cuts the time sinks.
-import { gsap } from "../../node_modules/gsap/index.js";
+import { gsap } from "../gsap.js";
 import { C, s, rng } from "../brand.js";
 import { text, reveal } from "../type.js";
 import { glitchHTML } from "../fx.js";
@@ -53,7 +53,7 @@ export default function s3(ctx) {
   const panels = {};
   q.forEach((Q, i) => {
     const p = s("rect", { x: Q.x + 6, y: Q.y + 6, width: MW / 2 - 12, height: MH / 2 - 12, rx: 10, fill: C.red, "fill-opacity": Q.k === "TS" ? 0.16 : 0.05, stroke: "#ff9aa6", "stroke-opacity": 0.5, "stroke-width": 1.5 }, mg);
-    const l = s("text", { x: Q.x + 24, y: Q.y + 38, fill: Q.k === "TS" ? "#fff" : "#ffc2ca", "font-family": "JBMono", "font-size": 17, "letter-spacing": 4, text: Q.label }, mg);
+    const l = s("text", { "data-layout-allow-overlap": "", x: Q.x + 24, y: Q.y + 38, fill: Q.k === "TS" ? "#fff" : "#ffc2ca", "font-family": "JBMono", "font-size": 17, "letter-spacing": 4, text: Q.label }, mg);
     gsap.set([p, l], { opacity: 0 });
     tl.to(p, { opacity: 1, duration: 0.25 }, B0 + 0.2 + i * 0.06);
     tl.to(l, { opacity: 1, duration: 0.25 }, B0 + 0.35 + i * 0.06);
@@ -76,7 +76,7 @@ export default function s3(ctx) {
     { id: "CK-087", t: "AUDIT LOGS", rice: 71, q: "BB", s: 1 },
     { id: "CK-409", t: "DARK MODE", rice: 38, q: "FI", s: 1 },
   ];
-  const cards = s("g", {}, front);
+  const cards = s("g", { "data-layout-allow-overlap": "" }, front);   // tickets pile up and fly over the grid on purpose
   gsap.set(cards, { autoAlpha: 0 });
   tl.set(cards, { autoAlpha: 1 }, B0 + 0.4);
   const RR = rng(17);
@@ -86,10 +86,10 @@ export default function s3(ctx) {
     const W = 340, Hh = 56;
     s("rect", { x: -W / 2, y: -Hh / 2, width: W, height: Hh, rx: 9, fill: "rgba(12,12,16,0.92)", stroke: "#ff9aa6", "stroke-opacity": 0.6, "stroke-width": 1.5 }, cg);
     s("rect", { x: -W / 2, y: -Hh / 2, width: 6, height: Hh, rx: 3, fill: T.rice > 60 ? C.red : T.rice > 20 ? "#fff" : "#555" }, cg);
-    s("text", { x: -W / 2 + 20, y: 6, fill: "rgba(255,255,255,0.6)", "font-family": "JBMono", "font-size": 15, text: T.id }, cg);
-    s("text", { x: -W / 2 + 92, y: 6, fill: "#fff", "font-family": "JBMono", "font-weight": 700, "font-size": 15, text: T.t }, cg);
+    s("text", { "data-layout-allow-overlap": "", x: -W / 2 + 20, y: 6, fill: "rgba(255,255,255,0.6)", "font-family": "JBMono", "font-size": 15, text: T.id }, cg);
+    s("text", { "data-layout-allow-overlap": "", x: -W / 2 + 92, y: 6, fill: "#fff", "font-family": "JBMono", "font-weight": 700, "font-size": 15, text: T.t }, cg);
     s("rect", { x: W / 2 - 60, y: -15, width: 48, height: 30, rx: 7, fill: T.rice > 60 ? C.red : "#26262E" }, cg);
-    const num = s("text", { x: W / 2 - 36, y: 6, "text-anchor": "middle", fill: "#fff", "font-family": "JBMono", "font-weight": 700, "font-size": 15, text: "00" }, cg);
+    const num = s("text", { "data-layout-allow-overlap": "", x: W / 2 - 36, y: 6, "text-anchor": "middle", fill: "#fff", "font-family": "JBMono", "font-weight": 700, "font-size": 15, text: "00" }, cg);
     const strike = s("path", { d: `M${-W / 2 + 14} 0 H${W / 2 - 14}`, stroke: C.red, "stroke-width": 5, "stroke-linecap": "round", opacity: 0 }, cg);
     const px = MX + MW / 2 + (RR() - 0.5) * 300, py = MY + MH / 2 + (RR() - 0.5) * 200, pr = (RR() - 0.5) * 24;
     gsap.set(cg, { x: px, y: -120, rotation: pr * 3, svgOrigin: "0 0" });
@@ -109,7 +109,7 @@ export default function s3(ctx) {
   tl.to(ctx.scrimB, { opacity: 1, duration: 0.4 }, B0);
   const H1 = text(type, "PRIORITIZE", { x: 110, y: 900, size: 76, cls: "h", split: "chars" });
   const H2 = text(type, "RUTHLESSLY.", { x: 560, y: 900, size: 76, cls: "h", split: "chars" });
-  H2.inner.style.color = C.red;
+  H2.inner.style.color = C.redText;
   reveal(tl, H1.units, B0 + 0.05, { dur: 0.5, stagger: 0.02 });
   reveal(tl, H2.units, CUT, { dur: 0.35, stagger: 0.018, ease: "power4.out" });
   glitchHTML(tl, H2.wrap, CUT + 0.02, { frames: 4, seed: 7 });

@@ -1,6 +1,6 @@
 // 0–4s · THE QUESTION — CRT boot over the knight hero shot; red particles stream off his chest and
 // assemble a holographic "?"; WHAT PROBLEM / ARE WE SOLVING slams in on the left.
-import { gsap } from "../../node_modules/gsap/index.js";
+import { gsap } from "../gsap.js";
 import { C, s, rng, lerp, easeOutExpo, easeInOutCubic } from "../brand.js";
 import { sampleText, glitchHTML } from "../fx.js";
 import { text, reveal } from "../type.js";
@@ -36,8 +36,8 @@ export default function s1(ctx) {
   cap.inner.style.letterSpacing = "0.28em";
   const wordTimes = ctx.cues.words?.l1a || [0.0, 0.3, 0.62, 1.12, 1.42, 1.62, 1.95];
   cap.units.forEach((w, i) => reveal(tl, [w], t1a + wordTimes[i] + 0.03, { dur: 0.4 }));
-  tl.to(cap.units[5], { color: C.red, duration: 0.01 }, t1a + wordTimes[5] + 0.05);
-  tl.to(cap.units[6], { color: C.red, duration: 0.01 }, t1a + wordTimes[6] + 0.05);
+  tl.to(cap.units[5], { color: C.redText, duration: 0.01 }, t1a + wordTimes[5] + 0.05);
+  tl.to(cap.units[6], { color: C.redText, duration: 0.01 }, t1a + wordTimes[6] + 0.05);
   tl.to(cap.inner, { opacity: 0, y: 20, duration: 0.25, ease: "power2.in" }, 2.75);
   tl.to(ctx.scrimB, { opacity: 0, duration: 0.4 }, 2.8);
 
@@ -88,10 +88,9 @@ export default function s1(ctx) {
   tl.to(ctx.scrimL, { opacity: 1, duration: 0.4 }, t1b - 0.2);
   const L1 = text(type, "WHAT PROBLEM", { x: 110, y: 430, size: 92, cls: "h ko", split: "chars" });
   const L2 = text(type, "ARE WE SOLVING", { x: 110, y: 530, size: 92, cls: "h", split: "chars" });
-  L2.inner.style.color = "transparent";
-  L2.inner.style.webkitTextStroke = "2.5px #fff";
+  L2.inner.style.color = C.redText;
   const sub = text(type, "// PROBLEM FIRST. SOLUTION SECOND.", { x: 116, y: 630, size: 22, cls: "m" });
-  sub.inner.style.color = C.red;
+  sub.inner.style.color = C.redText;
   reveal(tl, L1.units, t1b + 0.02, { dur: 0.5, stagger: 0.022 });
   reveal(tl, L2.units, t1b + 0.55, { dur: 0.5, stagger: 0.022 });
   tl.fromTo(sub.inner, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: "expo.out", immediateRender: true }, t1b + 0.4);

@@ -1,6 +1,6 @@
 // CyberKnight brand tokens (from the Bloom brand kit) + small DOM/random helpers shared by every scene.
-import { gsap } from "../node_modules/gsap/index.js";
-import { CustomEase } from "../node_modules/gsap/CustomEase.js";
+import { gsap } from "./gsap.js";
+import { CustomEase } from "./gsap.js";
 
 gsap.registerPlugin(CustomEase);
 
@@ -10,7 +10,8 @@ export const C = {
   panel: "#0B0B0F",
   line: "#1B1B22",
   gray: "#374151",      // Border Gray
-  red: "#DB0923",       // Accent / UI red
+  red: "#DB0923",       // Accent / UI red (graphics)
+  redText: "#EE3B52",   // brand red lifted to pass AA as type on black
   core: "#CD0A21",      // Chinese Red, the core mark
   deep: "#50040D",      // Saving Light, burgundy shadow tone
   white: "#FFFFFF",

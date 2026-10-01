@@ -1,6 +1,6 @@
 // 4–9s · THE ROLE — the "?" dot flies left and blooms into a holographic Venn
 // (Business × Tech × Users) projected from the knight's raised palm.
-import { gsap } from "../../node_modules/gsap/index.js";
+import { gsap } from "../gsap.js";
 import { C, s } from "../brand.js";
 import { text, reveal, conceal } from "../type.js";
 import { glitchHTML } from "../fx.js";
@@ -55,7 +55,7 @@ export default function s2(ctx) {
 
   // title + subtitle
   const kick = text(type, "ROLE // 01", { x: 112, y: 122, size: 20, cls: "m", split: "chars" });
-  kick.inner.style.color = C.red;
+  kick.inner.style.color = C.redText;
   const t1 = text(type, "THE PRODUCT MANAGER", { x: 108, y: 180, size: 60, cls: "h ko", split: "chars" });
   const sub = text(type, "lives where business, tech &amp; users meet.", { x: 112, y: 950, size: 28, cls: "b" });
   sub.inner.style.fontWeight = 300; sub.inner.style.color = "rgba(255,255,255,0.8)";

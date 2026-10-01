@@ -1,7 +1,7 @@
 // 17–26s · SOFT SKILLS — the knight, hand on heart, lifts his gaze. On the left: "BUT THE REAL EDGE?" →
 // SOFT SKILLS slam → the three skills stack up, each with its own hologram widget:
 // OWNERSHIP (assignee chip) · TRUST (shared roadmap) · NEGOTIATION (scope ⟷ time slider + DEAL stamp).
-import { gsap } from "../../node_modules/gsap/index.js";
+import { gsap } from "../gsap.js";
 import { C, s } from "../brand.js";
 import { text, reveal, conceal } from "../type.js";
 import { glitchHTML } from "../fx.js";
@@ -18,6 +18,7 @@ export default function s4(ctx) {
   const edge = text(type, "BUT THE REAL EDGE?", { x: 110, y: 470, size: 60, cls: "h", split: "chars" });
   reveal(tl, edge.units, qA - 0.05, { dur: 0.4, stagger: 0.015 });
   conceal(tl, edge.units, qB - 0.2, { stagger: 0.008 });
+  tl.set(edge.wrap, { opacity: 0 }, qB + 0.1);
 
   const soft1 = text(type, "SOFT", { x: 100, y: 430, size: 210, cls: "h ko" });
   const soft2 = text(type, "SKILLS", { x: 100, y: 620, size: 210, cls: "h ko" });
@@ -41,7 +42,7 @@ export default function s4(ctx) {
     const tx = text(type, r.word, { x: 110, y: r.y, size: 78, cls: "h", split: "chars" });
     const num = text(type, `0${rows.indexOf(r) + 1} //`, { x: 114, y: r.y - 62, size: 18, cls: "m" });
     nums.push(num.inner);
-    num.inner.style.color = C.red;
+    num.inner.style.color = C.redText;
     reveal(tl, tx.units, r.at - 0.02, { dur: 0.4, stagger: 0.018, ease: "power4.out" });
     tl.fromTo(num.inner, { opacity: 0 }, { opacity: 1, duration: 0.2, immediateRender: true }, r.at);
     glitchHTML(tl, tx.wrap, r.at + 0.05, { frames: 3, seed: 30 + r.y, amp: 14 });

@@ -1,5 +1,5 @@
 // Kinetic-type helpers: absolutely positioned text blocks with optional per-word / per-char masks.
-import { gsap } from "../node_modules/gsap/index.js";
+import { gsap } from "./gsap.js";
 import { h } from "./brand.js";
 
 /**

@@ -1,0 +1,24 @@
+{
+  "name": "cyberknight-pm-robot-cast",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "36s CyberKnight PM Module 01 sample: the v1 motion piece with the whole cast replaced by the client's armoured knight",
+  "scripts": {
+    "prep:knights": "python3 tools/prep_knights.py",
+    "vo": "python3 audio/make_vo.py",
+    "audio": "python3 audio/music.py",
+    "serve": "node serve.mjs",
+    "preview": "node preview.mjs",
+    "render": "node render.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "ffmpeg-static": "^5.3.0",
+    "gsap": "^3.15.0",
+    "playwright-core": "1.56"
+  }
+}

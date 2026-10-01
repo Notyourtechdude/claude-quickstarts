@@ -13,6 +13,25 @@ The film is built with **[HyperFrames](https://github.com/heygen-com/hyperframes
 | 26–31 | 04 Ship It | At the window, rocket trail | A roadmap hologram glitches out, then PEOPLE DO. and the launch metrics | "Because roadmaps don't ship products. People do." |
 | 31–36 | 05 End card | Final power pose | Knight mark and radar rings (Vendors · Partners · Customers), Module 01 lockup, CRT-off | "Module one. Product management, by CyberKnight." |
 
+## Robot cast (v1 with the knight as every character)
+
+[`robot-cast/`](robot-cast/) is the v1 flat-vector piece with the same storyboard, type, sound and timing. The difference is that all four characters (PM, dev, designer, stakeholder) are now CyberKnight's armoured knight, cut out of the client's reference renders. Its output is `robot-cast/out/cyberknight_pm_module1_sample.mp4`.
+
+- `tools/prep_knights.py` turns the background-removed references (BiRefNet via `rembg`) into the layers in `assets/knight/`. Each of the three poses gets three layers:
+  - the armour
+  - the neon seams, pre-bloomed
+  - the visor
+- The three poses are arms crossed, hand on heart, and palm up.
+- `src/knights.js` keeps the v1 rig's API, so the scenes drive the knights unchanged:
+  - Pose swaps are hidden behind a 2-frame glitch.
+  - The visor neon flickers to speak and dims to blink.
+  - The seams flare for gestures.
+  - Entrances are a beam-in (materialising from the boots up) and a heavy drop-in.
+
+```bash
+cd robot-cast && npm install && python3 audio/music.py && node render.mjs && node verify.mjs
+```
+
 ## Layout
 
 - **`knight-film/`** is the HyperFrames project and the source of truth for the film. See [`knight-film/BRIEF.md`](knight-film/BRIEF.md).

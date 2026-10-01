@@ -6,3 +6,5 @@ out/*
 !out/cyberknight_pm_module1_sample.mp4
 !out/contact_sheet.jpg
 __pycache__/
+footage/*/
+!footage/.gitkeep

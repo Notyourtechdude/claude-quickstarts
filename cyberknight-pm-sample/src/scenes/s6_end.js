@@ -1,26 +1,26 @@
-// 31–36s · END CARD — the rocket trail draws the knight; radar rings orbit Vendors · Partners · Customers;
-// "MODULE 01 · Product Management · Fundamentals & Soft Skills" lockup; the PM peeks in to wave; CRT-off.
+// 31–36s · END CARD — over the knight's final power pose: the knight mark draws itself on the left,
+// radar rings orbit Vendors · Partners · Customers, the Module 01 lockup builds, then CRT-off.
 import { gsap } from "../../node_modules/gsap/index.js";
 import { C, s, KNIGHT } from "../brand.js";
 import { text, reveal } from "../type.js";
 import { glitchSVG, glitchHTML } from "../fx.js";
 
 export default function s6(ctx) {
-  const { tl, back, type, cast } = ctx;
-  const pm = cast.pm;
+  const { tl, back, type } = ctx;
   const g = s("g", { id: "s6" }, back);
   gsap.set(g, { autoAlpha: 0 });
   tl.set(g, { autoAlpha: 1 }, 30.95);
+  tl.to(ctx.scrimL, { opacity: 1, duration: 0.5 }, 31.0);
 
-  const KX = 960, KY = 420, KS = 1.05;
+  const KX = 660, KY = 400, KS = 0.9;
   // radar rings (brand motion motif) — drawn first so they sit behind the mark
   const rings = s("g", {}, g);
   gsap.set(rings, { svgOrigin: `${KX} ${KY}` });
-  const ringEls = [240, 340, 450].map((r, i) => s("circle", { cx: KX, cy: KY, r, fill: "none", stroke: i === 1 ? "rgba(219,9,35,0.55)" : "rgba(255,255,255,0.22)", "stroke-width": 2, "stroke-dasharray": i === 1 ? "2 10" : "14 12" }, rings));
+  const ringEls = [200, 285, 375].map((r, i) => s("circle", { cx: KX, cy: KY, r, fill: "none", stroke: i === 1 ? "rgba(219,9,35,0.55)" : "rgba(255,255,255,0.22)", "stroke-width": 2, "stroke-dasharray": i === 1 ? "2 10" : "14 12" }, rings));
   const orbit = s("g", {}, rings);
   gsap.set(orbit, { svgOrigin: `${KX} ${KY}` });
   const nodes = [["VENDORS", 205], ["PARTNERS", -25], ["CUSTOMERS", 25]].map(([label, deg]) => {
-    const a = (deg * Math.PI) / 180, r = 340;
+    const a = (deg * Math.PI) / 180, r = 285;
     const x = KX + Math.cos(a) * r, y = KY + Math.sin(a) * r;
     const left = Math.cos(a) < 0;
     const ng = s("g", {}, orbit);
@@ -57,16 +57,16 @@ export default function s6(ctx) {
   tl.to(ko, { y: -150, scale: 0.72, duration: 0.7, ease: "expo.inOut" }, UP);
   tl.to(rings, { y: -150, scale: 0.8, opacity: 0.45, duration: 0.7, ease: "expo.inOut" }, UP);
 
-  const kick = text(type, "MODULE 01", { x: 960, y: 560, size: 24, cls: "m", anchor: "center", split: "chars" });
+  const kick = text(type, "MODULE 01", { x: KX, y: 560, size: 24, cls: "m", anchor: "center", split: "chars" });
   kick.inner.style.color = C.red; kick.inner.style.letterSpacing = "0.6em";
-  const title = text(type, "PRODUCT MANAGEMENT", { x: 960, y: 650, size: 108, cls: "h", anchor: "center", split: "chars" });
-  const subt = text(type, "Fundamentals &amp; Soft Skills", { x: 960, y: 744, size: 42, cls: "b", anchor: "center" });
+  const title = text(type, "PRODUCT MANAGEMENT", { x: KX, y: 646, size: 90, cls: "h", anchor: "center", split: "chars" });
+  const subt = text(type, "Fundamentals &amp; Soft Skills", { x: KX, y: 734, size: 40, cls: "b", anchor: "center" });
   subt.inner.style.fontWeight = 300;
-  const rule = text(type, "", { x: 960, y: 808, anchor: "center" });
+  const rule = text(type, "", { x: KX, y: 800, anchor: "center" });
   Object.assign(rule.inner.style, { width: "520px", height: "2px", background: "rgba(255,255,255,0.25)" });
-  const url = text(type, "CYBERKNIGHT.TECH", { x: 960, y: 858, size: 24, cls: "m", anchor: "center", split: "chars" });
+  const url = text(type, "CYBERKNIGHT.TECH", { x: KX, y: 850, size: 24, cls: "m", anchor: "center", split: "chars" });
   url.inner.style.letterSpacing = "0.42em";
-  const ul = text(type, "", { x: 960, y: 884, anchor: "center" });
+  const ul = text(type, "", { x: KX, y: 876, anchor: "center" });
   Object.assign(ul.inner.style, { width: "380px", height: "3px", background: C.red });
 
   reveal(tl, kick.units, UP + 0.25, { dur: 0.4, stagger: 0.03 });
@@ -77,16 +77,6 @@ export default function s6(ctx) {
   tl.fromTo(rule.inner, { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "expo.inOut", immediateRender: true }, v6 + 0.7);
   reveal(tl, url.units, v6 + 1.25, { dur: 0.4, stagger: 0.02 });
   tl.fromTo(ul.inner, { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 0.5, ease: "expo.out", immediateRender: true }, v6 + 1.55);
-
-  // the PM peeks in from the bottom-right corner to wave goodbye
-  const PK = 34.15;
-  pm.place(tl, PK - 0.01, { x: 1690, y: 1330, scale: 0.62 });
-  tl.to(pm.root, { y: 1150, duration: 0.45, ease: "back.out(1.8)" }, PK);
-  pm.mouth(tl, PK, "grin");
-  pm.wave(tl, PK + 0.35, 3, 0);
-  pm.look(tl, PK + 0.2, -0.7);
-  pm.blink(tl, PK + 0.9);
-  pm.blink(tl, 35.3);
 
   // CRT-off outro
   const OFF = 35.55;

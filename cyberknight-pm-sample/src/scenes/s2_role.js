@@ -1,118 +1,92 @@
-// 4–9s · THE ROLE — the "?" dot becomes a Venn (Business × Tech × Users); the PM drops into the overlap.
+// 4–9s · THE ROLE — the "?" dot flies left and blooms into a holographic Venn
+// (Business × Tech × Users) projected from the knight's raised palm.
 import { gsap } from "../../node_modules/gsap/index.js";
 import { C, s } from "../brand.js";
 import { text, reveal, conceal } from "../type.js";
 import { glitchHTML } from "../fx.js";
 
 export default function s2(ctx) {
-  const { tl, back, type, cast } = ctx;
-  const pm = cast.pm;
-  const g = s("g", { id: "s2" }, back);
+  const { tl, back, type } = ctx;
+  const g = s("g", { id: "s2", style: "mix-blend-mode:screen" }, back);
   gsap.set(g, { autoAlpha: 0 });
   tl.set(g, { autoAlpha: 1 }, 3.9);
+  tl.to(ctx.scrimL, { opacity: 0.9, duration: 0.5 }, 3.95);
 
-  const CX = 1060, R = 250;
-  const P = { A: [CX - 180, 400], B: [CX + 180, 400], C: [CX, 712] };
-  const venn = s("g", {}, g);
-  gsap.set(venn, { svgOrigin: `${CX} 504` });
+  const CX = 560, CY = 520, R = 170;
+  const P = { A: [CX - 125, CY - 72], B: [CX + 125, CY - 72], C: [CX, CY + 145] };
+  const venn = s("g", { filter: "url(#holo)" }, g);
+  gsap.set(venn, { svgOrigin: `${CX} ${CY}` });
 
-  // triple-overlap glow (C clipped by A and B)
   const cpA = s("clipPath", { id: "vA" }, ctx.defs); s("circle", { cx: P.A[0], cy: P.A[1], r: R }, cpA);
   const cpB = s("clipPath", { id: "vB" }, ctx.defs); s("circle", { cx: P.B[0], cy: P.B[1], r: R }, cpB);
   const tri = s("g", { "clip-path": "url(#vA)", opacity: 0 }, venn);
-  const tri2 = s("g", { "clip-path": "url(#vB)" }, tri);
-  s("circle", { cx: P.C[0], cy: P.C[1], r: R, fill: C.red, opacity: 0.55 }, tri2);
+  s("circle", { cx: P.C[0], cy: P.C[1], r: R, fill: C.red, opacity: 0.6, "clip-path": "url(#vB)" }, tri);
 
-  const mkCircle = (k, stroke, dash) => {
-    const c = s("circle", { cx: P[k][0], cy: P[k][1], r: R, fill: C.red, "fill-opacity": 0.07, stroke, "stroke-width": 3, "stroke-dasharray": dash }, venn);
-    return c;
-  };
-  const cA = mkCircle("A", C.red);
-  const cB = mkCircle("B", "#fff");
-  const cC = mkCircle("C", "#fff", "10 10");
+  const mk = (k, dash) => s("circle", { cx: P[k][0], cy: P[k][1], r: R, fill: C.red, "fill-opacity": 0.08, stroke: C.red, "stroke-width": 3, "stroke-dasharray": dash }, venn);
+  const cA = mk("A"), cB = mk("B"), cC = mk("C", "10 9");
+  // scanline sweep through the hologram
+  const sweep = s("rect", { x: CX - 330, y: CY - 260, width: 660, height: 6, fill: "#ff8a98", opacity: 0.0 }, venn);
+  tl.fromTo(sweep, { attr: { y: CY - 260 }, opacity: 0.55 }, { attr: { y: CY + 330 }, opacity: 0, duration: 1.1, ease: "power1.in", immediateRender: false }, 4.6);
 
-  // A: grows out of the "?" dot left by scene 1
-  const q = ctx.qDot || { x: 1610, y: 720 };
-  tl.fromTo(cA, { attr: { cx: q.x, cy: q.y, r: 18 }, fillOpacity: 1 }, { attr: { cx: P.A[0], cy: P.A[1], r: R }, fillOpacity: 0.07, duration: 0.7, ease: "expo.out", immediateRender: true }, 3.92);
-  tl.fromTo(cB, { x: 1000, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "back.out(1.3)", immediateRender: true }, 4.12);
-  tl.fromTo(cC, { y: 700, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.3)", immediateRender: true }, 4.28);
-  tl.fromTo(venn, { rotation: -4 }, { rotation: 3, duration: 4.4, ease: "sine.inOut", immediateRender: false }, 4.2);
-  ctx.flash(3.92, C.red, 0.18, 0.2);
+  const q = ctx.qDot || { x: 1600, y: 720 };
+  tl.fromTo(cA, { attr: { cx: q.x, cy: q.y, r: 14 }, fillOpacity: 1 }, { attr: { cx: P.A[0], cy: P.A[1], r: R }, fillOpacity: 0.08, duration: 0.7, ease: "expo.out", immediateRender: true }, 3.92);
+  tl.fromTo(cB, { attr: { r: 0 }, opacity: 0 }, { attr: { r: R }, opacity: 1, duration: 0.6, ease: "back.out(1.4)", immediateRender: true }, 4.12);
+  tl.fromTo(cC, { attr: { r: 0 }, opacity: 0 }, { attr: { r: R }, opacity: 1, duration: 0.6, ease: "back.out(1.4)", immediateRender: true }, 4.28);
+  tl.fromTo(venn, { rotation: -5 }, { rotation: 3, duration: 4.4, ease: "sine.inOut", immediateRender: false }, 4.2);
+  for (let f = 0; f < 6; f++) tl.set(venn, { opacity: f % 2 ? 0.55 : 1 }, 4.0 + f / 30);   // hologram power-on flicker
 
-  // lobe icons + labels
   const lobes = [
-    { k: "A", label: "BUSINESS", at: [CX - 300, 330] },
-    { k: "B", label: "TECH", at: [CX + 300, 330] },
-    { k: "C", label: "USERS", at: [CX, 850] },
+    { k: "A", label: "BUSINESS", at: [CX - 210, CY - 120] },
+    { k: "B", label: "TECH", at: [CX + 210, CY - 120] },
+    { k: "C", label: "USERS", at: [CX, CY + 225] },
   ];
   const icons = {};
-  for (const L of lobes) {
+  lobes.forEach((L, i) => {
     const ig = s("g", { transform: `translate(${L.at[0]} ${L.at[1]})` }, venn);
     const icon = s("g", { stroke: "#fff", "stroke-width": 3.5, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }, ig);
-    if (L.k === "A") { s("path", { d: "M-26 16 V4 M-8 16 V-6 M10 16 V-14 M-30 -4 L-8 -22 L6 -12 L28 -30 M16 -30 H28 V-18" }, icon); }
-    if (L.k === "B") { s("path", { d: "M-14 -22 L-32 0 L-14 22 M14 -22 L32 0 L14 22 M6 -28 L-6 28" }, icon); }
+    if (L.k === "A") s("path", { d: "M-26 16 V4 M-8 16 V-6 M10 16 V-14 M-30 -4 L-8 -22 L6 -12 L28 -30 M16 -30 H28 V-18" }, icon);
+    if (L.k === "B") s("path", { d: "M-14 -22 L-32 0 L-14 22 M14 -22 L32 0 L14 22 M6 -28 L-6 28" }, icon);
     if (L.k === "C") { s("circle", { cx: 0, cy: -12, r: 12 }, icon); s("path", { d: "M-24 26 C-24 6 24 6 24 26" }, icon); }
-    const lbl = s("text", { x: 0, y: 58, "text-anchor": "middle", fill: C.dim, "font-family": "JBMono", "font-size": 20, "letter-spacing": 5, text: L.label }, ig);
+    const lbl = s("text", { x: 0, y: 56, "text-anchor": "middle", fill: "#ffb3bd", "font-family": "JBMono", "font-size": 19, "letter-spacing": 5, text: L.label }, ig);
     gsap.set(icon, { svgOrigin: "0 0" });
-    tl.fromTo(ig, { opacity: 0, scale: 0.4, svgOrigin: `${L.at[0]} ${L.at[1]}` }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)", immediateRender: true }, 4.55 + lobes.indexOf(L) * 0.08);
+    tl.fromTo(ig, { opacity: 0, scale: 0.4, svgOrigin: `${L.at[0]} ${L.at[1]}` }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)", immediateRender: true }, 4.55 + i * 0.08);
     icons[L.k] = { icon, lbl };
-  }
+  });
 
-  // title block
-  const kick = text(type, "ROLE // 01", { x: 112, y: 392, size: 20, cls: "m", split: "chars" });
+  // title + subtitle
+  const kick = text(type, "ROLE // 01", { x: 112, y: 122, size: 20, cls: "m", split: "chars" });
   kick.inner.style.color = C.red;
-  const t1 = text(type, "THE PRODUCT", { x: 108, y: 462, size: 74, cls: "h", split: "chars" });
-  const t2 = text(type, "MANAGER", { x: 108, y: 540, size: 74, cls: "h ko", split: "chars" });
-  const sub = text(type, "lives where business, tech<br>&amp; users meet.", { x: 112, y: 640, size: 28, cls: "b" });
-  sub.inner.style.fontWeight = 300; sub.inner.style.color = C.dim; sub.inner.style.lineHeight = "1.35"; sub.inner.style.whiteSpace = "nowrap";
+  const t1 = text(type, "THE PRODUCT MANAGER", { x: 108, y: 180, size: 60, cls: "h ko", split: "chars" });
+  const sub = text(type, "lives where business, tech &amp; users meet.", { x: 112, y: 950, size: 28, cls: "b" });
+  sub.inner.style.fontWeight = 300; sub.inner.style.color = "rgba(255,255,255,0.8)";
   const vo = ctx.vo("l2");
-  reveal(tl, kick.units, vo - 0.05, { dur: 0.3, stagger: 0.015 });
-  reveal(tl, t1.units, vo + 0.05, { dur: 0.55, stagger: 0.025 });
-  reveal(tl, t2.units, vo + 0.25, { dur: 0.55, stagger: 0.03 });
-  glitchHTML(tl, t2.wrap, vo + 0.7, { frames: 3, seed: 21, amp: 16 });
-  tl.fromTo(sub.inner, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", immediateRender: true }, vo + 1.3);
+  reveal(tl, kick.units, vo - 0.1, { dur: 0.3, stagger: 0.015 });
+  reveal(tl, t1.units, vo + 0.0, { dur: 0.5, stagger: 0.02 });
+  glitchHTML(tl, t1.wrap, vo + 0.6, { frames: 3, seed: 21, amp: 14 });
+  tl.fromTo(sub.inner, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", immediateRender: true }, vo + 1.2);
 
-  // PM lands in the overlap
-  const platform = s("g", {}, g);
-  const plat1 = s("ellipse", { cx: CX, cy: 660, rx: 110, ry: 24, fill: "none", stroke: C.red, "stroke-width": 3, filter: "url(#glow)", opacity: 0 }, platform);
-  const plat2 = s("ellipse", { cx: CX, cy: 660, rx: 110, ry: 24, fill: "none", stroke: C.red, "stroke-width": 2, opacity: 0 }, platform);
-  gsap.set([plat1, plat2], { svgOrigin: `${CX} 660` });
-  const LAND = 5.5;
-  pm.dropIn(tl, LAND, { x: CX, y: 660, scale: 0.6 });
-  tl.to(plat1, { opacity: 1, duration: 0.05 }, LAND);
-  tl.fromTo(plat2, { opacity: 1, scale: 0.6 }, { opacity: 0, scale: 2.6, duration: 0.7, ease: "expo.out", immediateRender: false }, LAND);
-  ctx.shake(venn, LAND, 0.3, 10, 3);
-  pm.blinks(tl, 5.8, 8.4, 1.3);
-  pm.wave(tl, 5.85, 3, 1);
-  pm.breathe(tl, 5.9, 8.4);
-
-  // VO-synced lobe highlights (business / tech / users → meet)
-  const hi = [["A", 6.26, -1], ["B", 7.0, 1], ["C", 7.35, 0]];   // measured word onsets in the l2 VO clip
-  for (const [k, at, dir] of hi) {
+  // VO-synced lobe highlights (measured word onsets in the l2 clip)
+  const w = ctx.cues.words?.l2 || { business: 1.45, tech: 2.15, users: 2.55, meet: 2.95 };
+  for (const [k, word] of [["A", "business"], ["B", "tech"], ["C", "users"]]) {
+    const at = vo + w[word];
     const circ = { A: cA, B: cB, C: cC }[k];
     tl.to(icons[k].lbl, { attr: { fill: "#fff" }, duration: 0.05 }, at);
     tl.fromTo(icons[k].icon, { scale: 1 }, { scale: 1.35, duration: 0.12, yoyo: true, repeat: 1, ease: "power2.out", immediateRender: false }, at);
-    tl.to(icons[k].icon, { attr: { stroke: C.red }, duration: 0.05 }, at);
-    tl.to(circ, { attr: { "stroke-width": 7 }, fillOpacity: 0.16, duration: 0.1, yoyo: true, repeat: 1 }, at);
-    pm.look(tl, at, dir);
+    tl.to(circ, { attr: { "stroke-width": 7 }, fillOpacity: 0.2, duration: 0.1, yoyo: true, repeat: 1 }, at);
   }
-  const MEET = 7.72;
+  const MEET = vo + w.meet;
   tl.to(tri, { opacity: 1, duration: 0.12 }, MEET);
-  tl.fromTo(tri, { opacity: 1 }, { opacity: 0.55, duration: 0.8, ease: "power2.out", immediateRender: false }, MEET + 0.12);
-  pm.pose(tl, MEET, { armL: 70, armR: -70, foreL: -25, foreR: 25 }, 0.25, "back.out(2.5)");
-  pm.mouth(tl, MEET, "grin");
-  tl.fromTo(pm.glowRing, { opacity: 1, attr: { rx: 60, ry: 12 } }, { opacity: 0, attr: { rx: 220, ry: 48 }, duration: 0.7, ease: "expo.out", immediateRender: false }, MEET);
-  ctx.flash(MEET, C.red, 0.12, 0.3);
-  pm.pose(tl, 8.2, { armL: 7, armR: -7, foreL: 0, foreR: 0 }, 0.3, "power2.inOut");
-  pm.mouth(tl, 8.2, "smile");
+  tl.fromTo(tri, { opacity: 1 }, { opacity: 0.6, duration: 0.8, ease: "power2.out", immediateRender: false }, MEET + 0.12);
+  const ring = s("circle", { cx: CX, cy: CY + 10, r: 30, fill: "none", stroke: "#fff", "stroke-width": 3, opacity: 0 }, venn);
+  tl.fromTo(ring, { attr: { r: 20 }, opacity: 1 }, { attr: { r: 300 }, opacity: 0, duration: 0.8, ease: "expo.out", immediateRender: false }, MEET);
+  ctx.flash(MEET, C.red, 0.1, 0.3);
 
-  // exit → circles fly past camera, PM slides to scene 3's start mark
-  const OUT = 8.45;
-  conceal(tl, [...kick.units, ...t1.units, ...t2.units], OUT, { stagger: 0.008 });
-  tl.to(sub.inner, { opacity: 0, duration: 0.2 }, OUT);
-  tl.to(venn, { scale: 3.2, opacity: 0, duration: 0.5, ease: "power3.in" }, OUT);
-  tl.to([plat1], { opacity: 0, duration: 0.2 }, OUT);
-  tl.to(pm.root, { x: 620, y: 830, scale: 0.55, duration: 0.55, ease: "power3.inOut" }, OUT);
-  tl.to(ctx.bgw.floor, { opacity: 1, duration: 0.5 }, OUT);
+  // exit: the Venn folds into a horizontal line (scene 3's guide rail)
+  const OUT = 8.6;
+  conceal(tl, [...kick.units, ...t1.units], OUT - 0.1, { stagger: 0.006 });
+  tl.to(sub.inner, { opacity: 0, duration: 0.2 }, OUT - 0.1);
+  tl.to(venn, { scaleY: 0.02, scaleX: 1.6, duration: 0.35, ease: "power3.in" }, OUT);
+  tl.to(venn, { opacity: 0, duration: 0.1 }, OUT + 0.35);
+  tl.to(ctx.scrimL, { opacity: 0, duration: 0.4 }, OUT + 0.1);
   tl.set(g, { autoAlpha: 0 }, 9.05);
 }

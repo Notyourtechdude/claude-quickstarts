@@ -34,51 +34,15 @@ export function buildDefs(svg) {
       <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="scrimL" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity="0.82"/><stop offset="0.38" stop-color="#000" stop-opacity="0.55"/><stop offset="0.62" stop-color="#000" stop-opacity="0"/></linearGradient>
+    <linearGradient id="scrimB" x1="0" y1="0" x2="0" y2="1"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.75"/></linearGradient>
+    <filter id="holo" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <filter id="mblurX" x="-30%" y="-10%" width="160%" height="120%"><feGaussianBlur stdDeviation="0 0"/></filter>
   `;
   return defs;
-}
-
-/** Persistent background world. Returns handles scenes can move for parallax. */
-export function buildBackground(ctx) {
-  const { svg, tl } = ctx;
-  const bg = s("g", { id: "bg" }, svg);
-  s("rect", { x: 0, y: 0, width: 1920, height: 1080, fill: "url(#bgGlow)" }, bg);
-  const dots = s("g", {}, bg);
-  s("rect", { x: -960, y: -540, width: 3840, height: 2160, fill: "url(#dots)" }, dots);
-  const hex = s("g", { opacity: 0.22 }, bg);
-  s("rect", { x: 0, y: 0, width: 420, height: 1080, fill: "url(#hex)", mask: "url(#hexMask)" }, hex);
-  const hexR = s("g", { opacity: 0.22, transform: "translate(1920 0) scale(-1 1)" }, bg);
-  s("rect", { x: 0, y: 0, width: 420, height: 1080, fill: "url(#hex)", mask: "url(#hexMask)" }, hexR);
-
-  // Perspective floor (brand backdrop motif), faded in by scenes that need a ground plane.
-  const floor = s("g", { opacity: 0 }, bg);
-  const hz = 700;
-  for (let i = -14; i <= 14; i++) s("line", { x1: 960 + i * 18, y1: hz, x2: 960 + i * 190, y2: 1080, stroke: C.core, "stroke-opacity": 0.28, "stroke-width": 1.2 }, floor);
-  for (let k = 0; k < 9; k++) {
-    const y = hz + Math.pow(k / 8, 2.1) * 380;
-    s("line", { x1: 0, y1: y, x2: 1920, y2: y, stroke: C.core, "stroke-opacity": 0.1 + 0.2 * (k / 8), "stroke-width": 1.2 }, floor);
-  }
-  s("rect", { x: 0, y: hz - 2, width: 1920, height: 60, fill: "url(#spot)", opacity: 0.3 }, floor);
-
-  // Circuit traces with travelling light pulses: a quiet frame that keeps the world alive.
-  const traces = s("g", { opacity: 0.9 }, bg);
-  const R = rng(7);
-  const paths = [
-    "M0 160 H180 L230 110 H520", "M0 220 H120 L170 270 H340 L380 230 H460",
-    "M1920 900 H1700 L1650 950 H1400", "M1920 840 H1790 L1740 790 H1560 L1520 830 H1460",
-    "M1920 140 H1760 L1720 180 H1600", "M0 950 H210 L250 900 H420",
-  ];
-  const pulses = [];
-  for (const d of paths) {
-    s("path", { d, fill: "none", stroke: C.deep, "stroke-width": 2.2 }, traces);
-    const len = 700;
-    const p = s("path", { d, fill: "none", stroke: C.red, "stroke-width": 2.6, "stroke-dasharray": `46 ${len * 2}`, "stroke-linecap": "round", filter: "url(#glow)" }, traces);
-    pulses.push(p);
-    const period = 1.6 + R() * 1.4;
-    tl.fromTo(p, { attr: { "stroke-dashoffset": 60 } }, { attr: { "stroke-dashoffset": -len }, duration: period, ease: "none", repeat: Math.ceil(36 / period), immediateRender: false }, R() * 1.2);
-  }
-  return { bg, dots, floor, traces, hex, hexR };
 }
 
 /** Film grain from a few pre-rolled noise tiles, cycled per frame (deterministic). */

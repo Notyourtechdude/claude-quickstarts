@@ -1,10 +1,11 @@
 // Builds one paused master timeline for the whole 36s piece and exposes a frame-accurate seek for capture.
+// Layers (bottom → top): live-action knight footage (canvas) · SVG holograms · FX canvas · HTML type · HUD · post.
 import { gsap } from "../node_modules/gsap/index.js";
 import { DrawSVGPlugin } from "../node_modules/gsap/DrawSVGPlugin.js";
 import { MorphSVGPlugin } from "../node_modules/gsap/MorphSVGPlugin.js";
-import { C, s } from "./brand.js";
-import { makeCharacter, makeKnight } from "./characters.js";
-import { buildDefs, buildBackground, buildHud, makeGrain } from "./fx.js";
+import { s } from "./brand.js";
+import { buildDefs, buildHud, makeGrain } from "./fx.js";
+import { loadFootage, makeFootageLayer } from "./footage.js";
 import s1 from "./scenes/s1_open.js";
 import s2 from "./scenes/s2_role.js";
 import s3 from "./scenes/s3_fundamentals.js";
@@ -35,21 +36,21 @@ async function boot() {
   const svg = document.getElementById("svg");
   const tl = gsap.timeline({ paused: true });
   const defs = buildDefs(svg);
-  const fxCanvas = document.getElementById("fx");
   const ctx = {
     tl, svg, defs, cues,
     type: document.getElementById("type"),
     hud: document.getElementById("hud"),
     flashEl: document.getElementById("flash"),
-    fx: fxCanvas.getContext("2d"),
+    fx: document.getElementById("fx").getContext("2d"),
     drawers: [],
     vo: (id) => cues.vo[id],
   };
-  ctx.bgw = buildBackground(ctx);
+  // scrims keep type legible over footage; scenes fade them in where text sits
+  ctx.scrimL = s("rect", { x: 0, y: 0, width: 1920, height: 1080, fill: "url(#scrimL)", opacity: 0 }, svg);
+  ctx.scrimB = s("rect", { x: 0, y: 0, width: 1920, height: 1080, fill: "url(#scrimB)", opacity: 0 }, svg);
   ctx.world = s("g", { id: "world" }, svg);
-  ctx.back = s("g", { id: "back" }, ctx.world);      // scene sets
-  ctx.actors = s("g", { id: "actors" }, ctx.world);  // characters that persist across scenes
-  ctx.front = s("g", { id: "front" }, ctx.world);    // props that pass in front of characters
+  ctx.back = s("g", { id: "back" }, ctx.world);
+  ctx.front = s("g", { id: "front" }, ctx.world);
   ctx.svgTop = s("g", { id: "svgTop" }, svg);
   ctx.flash = (at, color = "#fff", peak = 0.85, dur = 0.28) => {
     tl.set(ctx.flashEl, { backgroundColor: color, opacity: peak }, at);
@@ -70,19 +71,14 @@ async function boot() {
     tl.set(target, { x: 0, y: 0 }, t);
   };
   ctx.hudApi = buildHud(ctx, CHAPTERS);
-  ctx.cast = {
-    dev: makeCharacter(ctx.actors, "dev", { id: "dev" }),
-    designer: makeCharacter(ctx.actors, "designer", { id: "designer" }),
-    exec: makeKnight(ctx.actors, { id: "exec" }),   // the stakeholder is CyberKnight's armoured knight
-    pm: makeCharacter(ctx.actors, "pm", { id: "pm" }),
-  };
-  for (const c of Object.values(ctx.cast)) gsap.set(c.root, { autoAlpha: 0 });
 
   for (const scene of [s1, s2, s3, s4, s5, s6]) scene(ctx);
   tl.set({}, {}, DURATION);
 
+  const footage = makeFootageLayer(document.getElementById("footage"), await loadFootage(cues.shots));
   const grain = makeGrain(document.getElementById("grain"));
-  const seek = (t) => {
+  const seek = async (t) => {
+    await footage(t);
     tl.seek(t, false);
     ctx.fx.clearRect(0, 0, 1920, 1080);
     for (const d of ctx.drawers) if (t >= d.t0 && t <= d.t1) d.draw(ctx.fx, t);
@@ -90,15 +86,15 @@ async function boot() {
     grain(t);
   };
   window.__duration = DURATION;
-  window.__seek = (t) => { seek(t); return new Promise((r) => requestAnimationFrame(() => r(true))); };
+  window.__seek = async (t) => { await seek(t); return new Promise((r) => requestAnimationFrame(() => r(true))); };
 
   const q = new URLSearchParams(location.search);
-  if (q.has("t")) seek(parseFloat(q.get("t")));
+  if (q.has("t")) await seek(parseFloat(q.get("t")));
   else if (q.has("play")) {
     const start = performance.now() - parseFloat(q.get("play") || 0) * 1000;
-    const loop = () => { seek(((performance.now() - start) / 1000) % DURATION); requestAnimationFrame(loop); };
+    const loop = async () => { await seek(((performance.now() - start) / 1000) % DURATION); requestAnimationFrame(loop); };
     loop();
-  } else seek(0);
+  } else await seek(0);
   window.__ready = true;
 }
 

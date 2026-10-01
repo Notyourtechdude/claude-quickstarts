@@ -284,65 +284,75 @@ for t, m in [(31.95, 81), (32.45, 76), (32.95, 79), (33.45, 84), (34.2, 81)]:
 
 # ───────────────────────── sound design ─────────────────────────
 S = sfx.add
-S(whoosh(0.35, 3000, 9000), 0.0, 0.25)                                   # CRT on
-S(thud(), 0.3, 0.5)
-S(riser(1.0, 200, 3000), 0.5, 0.25)                                       # line-draw
-S(boom(1.8, 50), 1.5, 0.6)                                                # knight fills
-S(glitch(0.14, 1), 1.52, 0.3)
-S(boom(1.2, 60) * 0.7, 2.0, 0.5); S(whoosh(0.45, 600, 5000), 2.0, 0.4)    # shatter
-S(whoosh(0.5, 5000, 500), 2.45, 0.3)                                      # particles converge
-S(boom(1.4, 55), 2.97, 0.55); S(glitch(0.1, 2), 2.97, 0.25)                # WHAT PROBLEM
-S(whoosh(0.35, 800, 4000), 3.6, 0.4)                                      # whip text
+W = CUES.get("words", {})
+w2 = W.get("l2", {"business": 1.45, "tech": 2.15, "users": 2.55, "meet": 2.95})
+
+# ambience: rain on glass for the whole piece, plus distant thunder (matches the footage)
+rain = lp(hp(noise(DUR), 1200), 7000) * 0.05
+rain *= 1 + 0.25 * np.sin(2 * np.pi * 0.13 * T(DUR))
+S(np.vstack([rain, np.roll(rain, 2400)]), 0.0, 1.0)
+for t, g in [(0.9, 0.45), (26.3, 0.35)]:
+    th = lp(noise(3.0), 140) * np.exp(-T(3.0) / 0.9) * np.minimum(1, T(3.0) / 0.25)
+    S(np.tanh(th * 4), t, g)
+
+# 0–4 · the question
+S(whoosh(0.35, 3000, 9000), 0.0, 0.25)                                    # CRT on
+S(thud(), 0.3, 0.5); S(boom(1.2, 52) * 0.6, 0.32, 0.4)
+S(riser(1.5, 200, 4000), 0.8, 0.18)                                       # visor power-up
+S(whoosh(0.7, 400, 6000), 2.25, 0.4)                                      # particles stream off the chest
+for i in range(6):
+    S(blip(midi(88 + (i % 3) * 5), 0.05), 2.35 + i * 0.09, 0.08, (i % 2) * 0.8 - 0.4)
+S(boom(1.4, 55), VO["l1b"], 0.55); S(glitch(0.1, 2), VO["l1b"], 0.25)       # WHAT PROBLEM
+S(whoosh(0.35, 800, 4000), 3.6, 0.4)                                      # text whip
 S(blip(900, 0.12), 3.92, 0.25); S(whoosh(0.5, 300, 2400), 3.92, 0.35)     # dot → circle
-S(whoosh(0.4, 2400, 600), 4.12, 0.3, 0.6); S(whoosh(0.4, 2400, 600), 4.28, 0.3, -0.3)
-S(riser(0.5, 800, 6000), 5.0, 0.2); S(thud(), 5.5, 0.9); S(boom(0.8, 70) * 0.5, 5.5, 0.4)  # PM lands
-for t, f in [(6.26, 1320), (7.0, 1568), (7.35, 1760)]:
-    S(blip(f), t, 0.22)
-S(bell(midi(88), 1.0), 7.72, 0.18)                                        # "meet"
-S(whoosh(0.55, 400, 5000), 8.45, 0.45)                                    # venn fly-through
-S(riser(0.9, 300, 7000), 8.1, 0.25); S(boom(1.6, 45), 9.0, 0.5)            # drop into S3
-for t in (ctx_t for ctx_t in (VO["l3a"], VO["l3b"], VO["l3c"])):
+# 4–9 · the role
+S(boom(1.2, 48) * 0.6, 4.0, 0.4)                                          # cut
+for i, t in enumerate((4.0, 4.07, 4.13)):
+    S(blip(1400 + i * 300, 0.04, False), t, 0.12)                          # hologram power-on
+for k, f in [("business", 1320), ("tech", 1568), ("users", 1760)]:
+    S(blip(f), VO["l2"] + w2[k], 0.22)
+S(bell(midi(88), 1.0), VO["l2"] + w2["meet"], 0.18)                        # "meet"
+S(whoosh(0.4, 3000, 500), 8.6, 0.35)                                      # Venn folds away
+S(riser(0.9, 300, 7000), 8.1, 0.22); S(boom(1.6, 45), 9.0, 0.5)            # cut into the walk
+# 9–17 · fundamentals
+for t in (VO["l3a"], VO["l3b"], VO["l3c"]):
     S(blip(2093, 0.14), t, 0.25); S(whoosh(0.3, 3000, 900), t, 0.18)
-S(whoosh(0.45, 500, 3000), 12.4, 0.35)
-for i in range(8):                                                        # tickets rain / land
-    S(thud() * 0.5, 12.9 + i * 0.07 + 0.28, 0.25, (i % 3 - 1) * 0.4)
+S(whoosh(0.45, 500, 3000), 12.75, 0.35); S(bell(midi(84), 0.6), 12.8, 0.12)   # matrix opens
+for i in range(8):                                                        # tickets land
+    S(thud() * 0.45, 13.05 + i * 0.06 + 0.3, 0.22, (i % 3 - 1) * 0.4)
 for i in range(8):                                                        # sorted, ascending
-    S(blip(midi(76 + [0, 3, 5, 7, 10, 12, 15, 17][i]), 0.08), 13.8 + i * 0.2 + 0.3, 0.2, (i % 2) * 0.6 - 0.3)
+    S(blip(midi(76 + [0, 3, 5, 7, 10, 12, 15, 17][i]), 0.08), 13.9 + i * 0.17 + 0.3, 0.2, (i % 2) * 0.6 - 0.3)
 S(glitch(0.13, 5), VO["l3d"], 0.3); S(whoosh(0.3, 5000, 300), VO["l3d"] + 0.05, 0.3)
 S(boom(1.0, 60) * 0.6, VO["l3d"] + 0.3, 0.45); S(whoosh(0.6, 1800, 200, True), VO["l3d"] + 0.3, 0.3)
-S(whoosh(0.5, 300, 6000), 16.45, 0.6)                                     # whip pan
-S(riser(1.1, 200, 8000), 17.0, 0.3)
-S(boom(2.4, 42), VO["l4b"] + 0.1, 0.8); S(glitch(0.1, 8), VO["l4b"] + 0.55, 0.25)   # SOFT SKILLS
-S(whoosh(0.4, 500, 7000), 18.75, 0.5)                                     # zoom-through
-for t in (18.9, 19.0):
-    S(blip(700, 0.1, False), t, 0.25)
-S(boom(1.4, 46), 19.05, 0.7); S(thud(), 19.05, 1.0)                       # the knight lands
-S(thud(), 19.25, 0.8)
-for t, f in [(19.45, 1046), (19.6, 1175), (19.75, 1318)]:
-    S(blip(f, 0.1), t, 0.25)
-S(zap(0.32), 19.9, 0.45)
-S(boom(1.2, 55) * 0.8, VO["l4c"], 0.5); S(blip(1568, 0.16), VO["l4c"] + 0.15, 0.2)   # OWNERSHIP
-S(boom(1.2, 55) * 0.8, VO["l4d"], 0.5); S(whoosh(0.4, 3000, 600), VO["l4d"] + 0.05, 0.3)   # TRUST
+S(whoosh(0.4, 3000, 400), 16.55, 0.4)                                     # matrix collapses
+S(boom(1.4, 50) * 0.7, 17.0, 0.45)                                        # cut to the pledge
+# 17–26 · soft skills
+S(riser(1.3, 200, 8000), 17.1, 0.28)
+S(boom(2.4, 42), VO["l4b"] + 0.15, 0.8); S(glitch(0.1, 8), VO["l4b"] + 0.6, 0.25)   # SOFT SKILLS
+S(whoosh(0.35, 600, 5000), 20.05, 0.35)
+S(boom(1.2, 55) * 0.8, VO["l4c"], 0.5); S(glitch(0.08, 9), VO["l4c"] + 0.05, 0.2); S(blip(1568, 0.16), VO["l4c"] + 0.35, 0.2)   # OWNERSHIP
+S(boom(1.2, 55) * 0.8, VO["l4d"], 0.5); S(glitch(0.08, 10), VO["l4d"] + 0.05, 0.2)  # TRUST
 for i in range(3):
-    S(blip(midi(79 + i * 3), 0.1), VO["l4d"] + 0.75 + i * 0.22, 0.22)
-for i, t in enumerate([VO["l4e"] - 0.5, VO["l4e"] - 0.05, VO["l4e"] + 0.4]):
+    S(blip(midi(79 + i * 3), 0.1), VO["l4d"] + 0.6 + i * 0.22, 0.22)
+S(boom(1.2, 55) * 0.8, VO["l4e"], 0.5); S(glitch(0.08, 12), VO["l4e"] + 0.05, 0.2)  # NEGOTIATION
+for i, t in enumerate([VO["l4e"] + 0.35, VO["l4e"] + 0.75, VO["l4e"] + 1.15]):
     S(whoosh(0.3, 800 + i * 300, 2000), t, 0.2)
-S(boom(1.2, 55) * 0.8, VO["l4e"], 0.5)                                    # NEGOTIATION
-S(thud(), VO["l4e"] + 0.71, 0.9); S(clap(), VO["l4e"] + 0.71, 0.4)         # DEAL stamp
-S(hp(noise(0.25), 3000) * env(int(0.25 * SR), 0.001, 0.05), 25.05, 0.5); S(bell(midi(91), 0.8), 25.05, 0.15)  # confetti
+S(thud(), VO["l4e"] + 1.71, 0.9); S(clap(), VO["l4e"] + 1.71, 0.4)         # DEAL stamp
 S(whoosh(0.45, 300, 5000), 25.6, 0.5)                                     # iris
-S(glitch(0.2, 11), 27.9, 0.35); S(whoosh(0.5, 2000, 150), 27.98, 0.35)    # roadmap falls
-S(boom(2.2, 40), VO["l5b"], 0.85); S(riser(0.6, 400, 8000), VO["l5b"] - 0.6, 0.2)  # PEOPLE DO
+# 26–31 · ship it
+S(boom(1.2, 50) * 0.6, 26.0, 0.4)
 for i in range(4):
-    S(blip(880, 0.08, False), VO["l5b"] + 0.1 + i * 0.07, 0.2)
-rumble = lp(noise(2.4), 180) * np.minimum(1, T(2.4) / 0.3) * np.exp(-np.maximum(0, T(2.4) - 1.4) / 0.4)
-S(np.tanh(rumble * 3) * 0.8, 29.0, 0.55)                                  # ignition
-S(whoosh(1.4, 150, 3000), 29.3, 0.45)                                     # lift-off
-for i in range(4):
-    S(blip(midi(84 + [0, 4, 7, 12][i]), 0.1), 29.45 + i * 0.16, 0.18)
-S(whoosh(0.6, 3000, 200), 30.35, 0.4)                                     # tilt
-S(riser(1.1, 300, 5000), 30.8, 0.2)
-S(boom(2.8, 38), VO["l6a"], 0.85); S(glitch(0.16, 17), VO["l6a"] + 0.02, 0.3)       # END CARD
+    S(blip(1200 + i * 150, 0.05, False), 26.2 + i * 0.12, 0.12)
+S(glitch(0.2, 11), 27.9, 0.35); S(whoosh(0.5, 2000, 150), 27.98, 0.35)    # roadmap glitches away
+S(boom(2.2, 40), VO["l5b"] + 0.15, 0.85); S(riser(0.6, 400, 8000), VO["l5b"] - 0.6, 0.2)  # PEOPLE DO.
+for i in range(3):
+    S(blip(midi(84 + [0, 4, 7][i]), 0.1), VO["l5b"] + 0.6 + i * 0.18, 0.18)
+rumble = lp(noise(2.6), 160) * np.minimum(1, T(2.6) / 0.4) * np.exp(-np.maximum(0, T(2.6) - 1.6) / 0.5)
+S(np.tanh(rumble * 3) * 0.6, 26.4, 0.4)                                   # distant launch rumble
+S(riser(0.9, 300, 8000), 30.1, 0.25); S(whoosh(0.3, 8000, 500), 30.98, 0.3)   # flash-cut
+# 31–36 · end card
+S(riser(0.9, 300, 3000), 31.0, 0.18)                                      # mark draws
+S(boom(2.8, 38), VO["l6a"], 0.85); S(glitch(0.16, 17), VO["l6a"] + 0.02, 0.3)
 S(whoosh(0.7, 300, 1500), 32.5, 0.25)
 t_off = 35.55
 S(whoosh(0.3, 6000, 200), t_off, 0.35); S(blip(120, 0.25, False), t_off + 0.22, 0.4)  # CRT off
@@ -362,7 +372,7 @@ for vid, t in VO.items():
     x = np.tanh(x * 1.6) / np.tanh(1.6)            # gentle saturation / level control
     wet = fftconvolve(x, room)[: len(x) + int(0.4 * SR)]
     y = np.concatenate([x, np.zeros(len(wet) - len(x))]) + wet
-    vo.add(y, t, 1.0)
+    vo.add(y, t, 1.3)
     i = int(t * SR)
     vo_mask[i:i + len(x)] = 1
 
